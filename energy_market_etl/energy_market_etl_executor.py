@@ -11,14 +11,14 @@ _TODAY = dt.datetime.today()
 
 
 class FutureDateError(Exception):
-    def __int__(self, date: dt.datetime, message: str):
+    def __int__(self, date: dt.datetime, message: str) -> None:
         self.date = date
         self.message = message
         super().__init__(message=self.message)
 
 
 class NonChronologicalDateOrderError(Exception):
-    def __int__(self, start_date: dt.datetime, end_date: dt.datetime, message: str):
+    def __int__(self, start_date: dt.datetime, end_date: dt.datetime, message: str) -> None:
         self.start_date = start_date
         self.end_date = end_date
         self.message = message
@@ -32,26 +32,24 @@ class EnergyMarketEtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract
 
     @pydantic.validator("end_date")
     @classmethod
-    def end_date_validator(cls, attribute) -> None:
-        if attribute > _TODAY:
+    def end_date_validator(cls, value) -> None:
+        if value > _TODAY:
             raise FutureDateError(
-                date=attribute,
-                message="" #TODO: add message for this exception
+                value,
+                "" #TODO: add message for this exception + keyword args, not positional
             )
 
-    @pydantic.root_validator(pre=False)
+    @pydantic.root_validator(pre=True)
     @classmethod
-    def dates_chronological_order_validator(cls, attributes):
-        start_date, end_date = attributes.get('start_date'), attributes.get('end_date')
-        print(attributes)
+    def dates_chronological_order_validator(cls, values):
+        start_date, end_date = values.get('start_date'), values.get('end_date')
         if start_date > end_date:
             raise NonChronologicalDateOrderError(
-                start_date=start_date,
-                end_date=end_date,
-                message="", #TODO: add message for this exception
+                start_date,
+                end_date,
+                "", #TODO: add message for this exception + keyword args, not positional
             )
-
-        return attributes
+        return values
 
     def execute(self):
         etl = self.__get_etl()
@@ -67,6 +65,6 @@ if __name__ == '__main__':
     data_source = ''
     EnergyMarketEtlExecutor(
         start_date=start_date,
-        end_date=future_date,
+        end_date=end_date,
         data_source=data_source,
     )
