@@ -9,9 +9,9 @@ from energy_market_etl.etls.etl import Etl
 class EnergyMarketEtl(Etl):
     def __init__(
             self,
-            extractors: Iterable[Extractor] = tuple(),
-            transformers: Iterable[Transformer] = tuple(),
-            loaders: Iterable[Loader] = tuple()
+            extractors: Iterable[Extractor],
+            transformers: Iterable[Transformer],
+            loaders: Iterable[Loader]
     ) -> None:
         self.extractors = extractors
         self.transformers = transformers
