@@ -30,6 +30,7 @@ if __name__ == '__main__':
     else:
         table = tables[0]
 
+        # 1 TABLE HEAD
         table_head = table.thead
         table_head_rows = table_head.findAll('tr')
         assert len(table_head_rows) == 2
@@ -48,4 +49,16 @@ if __name__ == '__main__':
         column_names = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)] #TODO: fix first column name...
 
 
+        # 2 TABLE BODY
         table_content = table.tbody
+        data_rows = table_content.findAll('tr')
+        assert len(data_rows) == 24
+
+        data_row = data_rows[0]
+        row_values = data_row.findAll('td')
+        assert len(row_values) == 7
+
+
+
+        # 3 TABLE FOOT
+        table_foot = table.tfoot
