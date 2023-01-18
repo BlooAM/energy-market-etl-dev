@@ -1,3 +1,5 @@
+import collections
+import datetime as dt
 from typing import Iterable, Union
 
 from energy_market_etl.extractors.extractor import Extractor
@@ -9,19 +11,34 @@ from energy_market_etl.etls.etl import Etl
 class EnergyMarketEtl(Etl):
     def __init__(
             self,
-            extractors: Union[Iterable[Extractor], Extractor],
-            transformers: Union[Iterable[Transformer], Transformer],
-            loaders: Union[Iterable[Loader], Loader],
+            start_date: dt.datetime,
+            end_date: dt.datetime,
+            data_source: str,
     ) -> None:
-        self.extractors = extractors
-        self.transformers = transformers
-        self.loaders = loaders
+        self.start_date = start_date
+        self.end_date = end_date
+        self.data_source = data_source
 
     def extract(self) -> None:
-        pass
+        extract_layer: Union[Iterable[Extractor], Extractor] = self.__construct_layer()
+        if isinstance(extract_layer, collections.abc.Iterable):
+            for extractor in extract_layer:
+                extractor.extract()
+            else:
+                extract_layer.extract()
 
     def transform(self) -> None:
-        pass
+        transform_layer: Union[Iterable[Transformer], Transformer] = self.__construct_layer()
+        if isinstance(transform_layer, collections.abc.Iterable):
+            for transformer in transform_layer:
+                transformer.transform()
+            else:
+                transform_layer.transform()
 
     def load(self) -> None:
-        pass
+        load_layer: Union[Iterable[Loader], Loader] = self.__construct_layer()
+        if isinstance(load_layer, collections.abc.Iterable):
+            for loader in load_layer:
+                loader.load()
+            else:
+                load_layer.load()
