@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import datetime as dt
+from typing import Any
 
 import pydantic
 
@@ -32,22 +33,22 @@ class EnergyMarketEtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract
 
     @pydantic.validator("end_date")
     @classmethod
-    def end_date_validator(cls, value) -> None:
+    def end_date_validator(cls, value: dt.datetime) -> None:
         if value > _TODAY:
             raise FutureDateError(
                 value,
-                "" #TODO: add message for this exception + keyword args, not positional
+                "`end_date` cannot be later than the current date" #TODO: keyword args, not positional
             )
 
     @pydantic.root_validator(pre=True)
     @classmethod
-    def dates_chronological_order_validator(cls, values):
+    def dates_chronological_order_validator(cls, values: Any) -> Any:
         start_date, end_date = values.get('start_date'), values.get('end_date')
         if start_date > end_date:
             raise NonChronologicalDateOrderError(
                 start_date,
                 end_date,
-                "", #TODO: add message for this exception + keyword args, not positional
+                "`start_date` and `end_date` must be in chronological order", #TODO: keyword args, not positional
             )
         return values
 
@@ -56,15 +57,3 @@ class EnergyMarketEtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract
 
     def __get_etl(self) -> EnergyMarketEtl:
         return EnergyMarketEtl()
-
-
-if __name__ == '__main__':
-    start_date = dt.datetime(2020, 12, 15, 0, 0)
-    end_date = dt.datetime(2020, 12, 21, 0, 0)
-    future_date = dt.datetime(2024, 12, 21, 0, 0)
-    data_source = ''
-    EnergyMarketEtlExecutor(
-        start_date=start_date,
-        end_date=end_date,
-        data_source=data_source,
-    )
