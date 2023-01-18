@@ -42,3 +42,6 @@ class EnergyMarketEtl(Etl):
                 loader.load()
             else:
                 load_layer.load()
+
+    def __construct_layer(self):
+        pass
