@@ -6,12 +6,11 @@ from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.tge.tge_extractor import TgeExtractor
-from energy_market_etl.transformers.tge.tge_transformer import TgeTransformer
-from energy_market_etl.loaders.tge.tge_loader import TgeLoader
+from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
 
-class TgeEtl(Etl):
+class MarketDataEtl(Etl):
     def __init__(
             self,
             start_date: dt.datetime,
