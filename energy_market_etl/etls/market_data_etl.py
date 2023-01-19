@@ -18,14 +18,16 @@ class MarketDataEtl(Etl):
             start_date: dt.datetime,
             end_date: dt.datetime,
             data_source: str,
+            report_name: str,
     ) -> None:
         self.start_date = start_date
         self.end_date = end_date
         self.data_source = data_source
+        self.report_name = f'{report_name}_{start_date.date()}_{end_date.date()}'
 
     def extract(self) -> None:
         extract_layer: Union[Iterable[Extractor], Extractor] = TgeExtractor(
-            
+
         )
         if isinstance(extract_layer, collections.abc.Iterable):
             for extractor in extract_layer:
@@ -42,14 +44,7 @@ class MarketDataEtl(Etl):
             transformer.transform()
 
     def load(self) -> None:
-        load_layer: Union[Iterable[Loader], Loader] = CsvLoader(
-
+        load_layer: Loader = CsvLoader(
+            file_name=self.report_name
         )
-        if isinstance(load_layer, collections.abc.Iterable):
-            for loader in load_layer:
-                loader.load()
-            else:
-                load_layer.load()
-
-    def __construct_layer(self):
-        pass
+        load_layer.load()
