@@ -1,6 +1,6 @@
 import datetime as dt
 
-from energy_market_etl.energy_market_etl_executor import EnergyMarketEtlExecutor
+from energy_market_etl.etl_executor import EnergyMarketEtlExecutor
 
 
 if __name__ == '__main__':
