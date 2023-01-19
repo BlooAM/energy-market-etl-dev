@@ -25,7 +25,7 @@ class NonChronologicalDateOrderError(Exception):
         super().__init__(message=self.message)
 
 
-class EnergyMarketEtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract EtlExecutor?
+class EtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract EtlExecutor?
     start_date: dt.datetime
     end_date: dt.datetime
     report_type: str #TODO: add validator for report type and mapper report_type->date_source
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     future_date = dt.datetime(2024, 1, 1)
     report_type = ''
 
-    etl_executor = EnergyMarketEtlExecutor(
+    etl_executor = EtlExecutor(
         start_date=start_date,
         end_date=end_date,
         report_type=report_type,
