@@ -1,7 +1,9 @@
 import datetime as dt
+import http.client
 from itertools import chain, repeat
 from typing import List, Union
 from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 
 import bs4
 import pandas as pd
@@ -11,14 +13,64 @@ from energy_market_etl.extractors.tge.utils import _TGE_DATA_TYPE_URL_MAPPER
 from energy_market_etl.utils.date_utils import FLOAT_REGEXP
 
 
-def _row_value_formatter(row_value):
+_RDN_TABLE_ID = 'footable_kontrakty_godzinowe'
+
+
+def _row_cell_formatter(row_value):
     row_value_formatted = row_value.strip().replace(',', '.')
     return float(row_value_formatted) if FLOAT_REGEXP(row_value_formatted) else None
 
 
 class TgeScrapper:
     def __int__(self, data_type: str) -> None:
-        self.__url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(data_type)
+        self.data_type = data_type #TODO: parse data_type -> pydantic
+
+    def scrape(self, date: dt.datetime) -> pd.DataFrame:
+        raw_html = self.__get_raw_html(date=date)
+        html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
+        tables = html_parser.findAll('table', {'id': _RDN_TABLE_ID})
+        if len(tables) != 1:
+            raise FileNotFoundError('')
+            return pd.DataFrame()
+        else:
+            table = tables[0]
+
+            column_names = ''
+
+            table_body_data = TgeScrapper._parse_table_rows(table.tbody)
+            table_summary_data = TgeScrapper._parse_table_rows(table.tfoot)
+
+            data = [*table_body_data, *table_summary_data]
+            data_snapshot = pd.DataFrame(data, columns=column_names)
+            return data_snapshot
+
+    def __get_raw_html(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
+        url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(self.data_type)
+        url = url_getter(date)
+        try:
+            html = urlopen(url)
+        except HTTPError as e:
+            print(e)    #TODO: raise custom error
+            return  None
+        except URLError as e:
+            print(e)    #TODO: raise custom error
+            return None
+        return html
+
+    @staticmethod
+    def _scrape_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
+        row_cells = row.findAll('td')
+        assert len(row_cells) == 7  # TODO: remove asserts
+        index_row_value = row_cells[0].text
+        numeric_row_values = [_row_cell_formatter(row.text) for row in row_cells[1:]]
+        return [index_row_value, *numeric_row_values]
+
+    @staticmethod
+    def _parse_table_rows(raw_table_content: bs4.element.Tag) -> List[List[Union[str, float, None]]]:
+        raw_rows = table_content.findAll('tr')
+        assert len(raw_rows) == 24  # TODO: remove asserts, 3 for table.tfoot
+        parsed_rows = [TgeScrapper._scrape_row_data(row) for row in raw_rows]
+        return parsed_rows
 
 
 if __name__ == '__main__':
@@ -28,11 +80,8 @@ if __name__ == '__main__':
     past_date = dt.datetime(2020, 1, 1)
     data_type = 'rdn_data'
 
-    url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(data_type)
-    url = url_getter(start_date)
-    html = urlopen(url)
 
-    bs = BeautifulSoup(html.read(), 'html.parser')
+
     tables = bs.findAll('table', {'id': 'footable_kontrakty_godzinowe'})
     if len(tables) != 1:
         raise FileNotFoundError('')
@@ -57,24 +106,3 @@ if __name__ == '__main__':
 
         column_names = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)] #TODO: fix first column name...
 
-        def scrape_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
-            row_cells = row.findAll('td')
-            assert len(row_cells) == 7 #TODO: remove asserts
-            index_row_value = row_cells[0].text
-            numeric_row_values = [_row_value_formatter(row.text) for row in row_cells[1:]]
-            return [index_row_value, *numeric_row_values]
-
-        # 2 TABLE BODY
-        table_content = table.tbody
-        retail_rows = table_content.findAll('tr')
-        assert len(retail_rows) == 24 #TODO: remove asserts
-        retail_data = [scrape_row_data(row) for row in retail_rows]
-
-        # 3 TABLE FOOT
-        table_foot = table.tfoot
-        summary_rows = table_foot.findAll('tr')
-        assert len(summary_rows) == 3  # TODO: remove asserts
-        summary_data = [scrape_row_data(row) for row in summary_rows]
-
-        data = [*retail_data, *summary_data]
-        df = pd.DataFrame(data, columns=column_names)
