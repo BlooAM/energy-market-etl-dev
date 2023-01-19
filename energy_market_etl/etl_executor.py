@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import datetime as dt
 from typing import Any
 
@@ -7,10 +6,16 @@ import pydantic
 from energy_market_etl.etls.etl import Etl
 from energy_market_etl.etls.market_data_etl import MarketDataEtl
 
-_REPORT_TYPES = [
-    'market_data',
-    'system_units_data',
-] #TODO: move implemented report types to config file
+_REPORT_TYPES_ETL_METADATA = {
+    'market_data': {
+        'data_source': '',
+        'report_name': '',
+    },
+    'system_units_data': {
+        'data_source': '',
+        'report_name': '',
+    },
+} #TODO: change mapper structure + move implemented report types to config file
 _TODAY = dt.datetime.today()
 
 
@@ -53,7 +58,7 @@ class EtlExecutor(pydantic.BaseModel):
     @pydantic.validator("report_type")
     @classmethod
     def report_type_validator(cls, value: str) -> None:
-        if value not in _REPORT_TYPES:
+        if value not in _REPORT_TYPES_ETL_METADATA.keys():
             raise ReportTypeNotImplementedError(
                 report_type=value,
                 message="`end_date` cannot be later than the current date"
@@ -78,12 +83,12 @@ class EtlExecutor(pydantic.BaseModel):
         # etl.load() #TODO: add loggs between layers
 
     def __get_etl(self) -> Etl:
-        data_source = self.report_type #TODO: add mapper (report_type) -> (data_source, report_name)
+        etl_metadata = _REPORT_TYPES_ETL_METADATA.get(self.report_type)
         return MarketDataEtl( #TODO: add etl factory based on (data_source, report_name)
             start_date=self.start_date,
             end_date=self.end_date,
-            data_source=data_source,
-            report_name=self.report_type,
+            data_source=etl_metadata.get('data_source'),
+            report_name=etl_metadata.get('report_name'),
         )
 
 
