@@ -22,7 +22,7 @@ def _row_cell_formatter(row_value):
 
 
 class TgeScrapper:
-    def __int__(self, data_type: str) -> None:
+    def __init__(self, data_type: str) -> None:
         self.data_type = data_type #TODO: parse data_type -> pydantic
 
     def scrape(self, date: dt.datetime) -> pd.DataFrame:
@@ -30,18 +30,14 @@ class TgeScrapper:
         html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
         tables = html_parser.findAll('table', {'id': _RDN_TABLE_ID})
         if len(tables) != 1:
-            raise FileNotFoundError('')
-            return pd.DataFrame()
+            raise AttributeError('') #TODO: message here
         else:
             table = tables[0]
-
-            column_names = ''
-
-            table_body_data = TgeScrapper._parse_table_rows(table.tbody)
-            table_summary_data = TgeScrapper._parse_table_rows(table.tfoot)
-
+            table_head_data = TgeScrapper._parse_table_metadata(table.thead) #TODO: check if table has attr thead
+            table_body_data = TgeScrapper._parse_table_data(table.tbody) #TODO: check if table has attr tbody
+            table_summary_data = TgeScrapper._parse_table_data(table.tfoot) #TODO: check if table has attr tfoot
             data = [*table_body_data, *table_summary_data]
-            data_snapshot = pd.DataFrame(data, columns=column_names)
+            data_snapshot = pd.DataFrame(data, columns=table_head_data)
             return data_snapshot
 
     def __get_raw_html(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
@@ -58,7 +54,7 @@ class TgeScrapper:
         return html
 
     @staticmethod
-    def _scrape_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
+    def _parse_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
         row_cells = row.findAll('td')
         assert len(row_cells) == 7  # TODO: remove asserts
         index_row_value = row_cells[0].text
@@ -66,10 +62,26 @@ class TgeScrapper:
         return [index_row_value, *numeric_row_values]
 
     @staticmethod
-    def _parse_table_rows(raw_table_content: bs4.element.Tag) -> List[List[Union[str, float, None]]]:
-        raw_rows = table_content.findAll('tr')
-        assert len(raw_rows) == 24  # TODO: remove asserts, 3 for table.tfoot
-        parsed_rows = [TgeScrapper._scrape_row_data(row) for row in raw_rows]
+    def _parse_table_data(raw_table_content: bs4.element.Tag) -> List[List[Union[str, float, None]]]:
+        raw_rows = raw_table_content.findAll('tr')
+        parsed_rows = [TgeScrapper._parse_row_data(row) for row in raw_rows]
+        return parsed_rows
+
+    @staticmethod
+    def _parse_table_metadata(raw_table_content: bs4.element.Tag) -> List[str]:
+        table_head_rows = raw_table_content.findAll('tr')
+        assert len(table_head_rows) == 2  # TODO: remove asserts
+        titles_row = table_head_rows[0]
+        title_tags = [title_tag for title_tag in titles_row.findAll('th')]
+        title_widths = [int(title_tag.get('colspan')) if title_tag.get('colspan') else 1 for title_tag in
+                        title_tags]
+        title_lists = [list(repeat(title.text, n_copies)) for (title, n_copies) in zip(title_tags, title_widths)]
+        titles = list(chain(*title_lists))
+        subtitles_row = table_head_rows[1]
+        subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
+        assert len(titles) == len(subtitles)  # TODO: remove asserts
+        parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in
+                       zip(titles, subtitles)]  # TODO: fix first column name...
         return parsed_rows
 
 
@@ -79,30 +91,6 @@ if __name__ == '__main__':
     future_date = dt.datetime(2024, 1, 1)
     past_date = dt.datetime(2020, 1, 1)
     data_type = 'rdn_data'
+    df = TgeScrapper(data_type=data_type).scrape(date=end_date)
 
-
-
-    tables = bs.findAll('table', {'id': 'footable_kontrakty_godzinowe'})
-    if len(tables) != 1:
-        raise FileNotFoundError('')
-    else:
-        table = tables[0]
-
-        # 1 TABLE HEAD
-        table_head = table.thead
-        table_head_rows = table_head.findAll('tr')
-        assert len(table_head_rows) == 2 #TODO: remove asserts
-
-        titles_row = table_head_rows[0]
-        title_tags = [title_tag for title_tag in titles_row.findAll('th')]
-        title_widths = [int(title_tag.get('colspan')) if title_tag.get('colspan') else 1 for title_tag in title_tags]
-        title_lists = [list(repeat(title.text, n_copies)) for (title, n_copies) in zip(title_tags, title_widths)]
-        titles = list(chain(*title_lists))
-
-        subtitles_row = table_head_rows[1]
-        subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
-
-        assert len(titles) == len(subtitles) #TODO: remove asserts
-
-        column_names = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)] #TODO: fix first column name...
 
