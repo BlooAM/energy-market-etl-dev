@@ -4,15 +4,25 @@ from typing import Any
 
 import pydantic
 
-from energy_market_etl.etls.energy_market_etl import EnergyMarketEtl
+from energy_market_etl.etls.market_data_etl import MarketDataEtl
 
-
+_REPORT_TYPES = [
+    'market_data',
+    'system_units_data',
+] #TODO: move implemented report types to config file
 _TODAY = dt.datetime.today()
 
 
 class FutureDateError(Exception):
     def __int__(self, date: dt.datetime, message: str) -> None:
         self.date = date
+        self.message = message
+        super().__init__(message=self.message)
+
+
+class ReportTypeNotImplementedError(Exception):
+    def __int__(self, report_type: dt.datetime, message: str) -> None:
+        self.report_type = report_type
         self.message = message
         super().__init__(message=self.message)
 
@@ -39,6 +49,15 @@ class EtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract EtlExecutor
                 "`end_date` cannot be later than the current date" #TODO: keyword args, not positional
             )
 
+    @pydantic.validator("report_type")
+    @classmethod
+    def report_type_validator(cls, value: str) -> None:
+        if value not in _REPORT_TYPES:
+            raise ReportTypeNotImplementedError(
+                value,
+                "`end_date` cannot be later than the current date" #TODO: keyword args, not positional
+            )
+
     @pydantic.root_validator(pre=True)
     @classmethod
     def dates_chronological_order_validator(cls, values: Any) -> Any:
@@ -53,13 +72,13 @@ class EtlExecutor(pydantic.BaseModel): #TODO: inherits from abstract EtlExecutor
 
     def execute(self):
         etl = self.__get_etl()
-        # etl.extractor() #TODO: add loggs between layers
+        # etl.extract() #TODO: add loggs between layers
         # etl.transform() #TODO: add loggs between layers
         # etl.load() #TODO: add loggs between layers
 
-    def __get_etl(self) -> EnergyMarketEtl:
+    def __get_etl(self) -> MarketDataEtl:
         data_source = self.report_type
-        return EnergyMarketEtl(
+        return MarketDataEtl(
             start_date=self.start_date,
             end_date=self.end_date,
             data_source=data_source,

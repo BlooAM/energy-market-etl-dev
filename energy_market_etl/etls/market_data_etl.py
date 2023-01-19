@@ -22,7 +22,9 @@ class MarketDataEtl(Etl):
         self.data_source = data_source
 
     def extract(self) -> None:
-        extract_layer: Union[Iterable[Extractor], Extractor] = self.__construct_layer()
+        extract_layer: Union[Iterable[Extractor], Extractor] = TgeExtractor(
+
+        )
         if isinstance(extract_layer, collections.abc.Iterable):
             for extractor in extract_layer:
                 extractor.extract()
@@ -38,7 +40,9 @@ class MarketDataEtl(Etl):
                 transform_layer.transform()
 
     def load(self) -> None:
-        load_layer: Union[Iterable[Loader], Loader] = self.__construct_layer()
+        load_layer: Union[Iterable[Loader], Loader] = CsvLoader(
+
+        )
         if isinstance(load_layer, collections.abc.Iterable):
             for loader in load_layer:
                 loader.load()

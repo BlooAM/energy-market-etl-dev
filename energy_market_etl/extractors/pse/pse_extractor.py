@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import Iterable
+from typing import Dict
 
 import pandas as pd
 
@@ -15,11 +15,10 @@ class PseExtractor(Extractor):
         if self.__url_getter is None:
             raise NotImplementedError(f'data type: {data_type} not implemented') #TODO: replace with custom Exception
 
-    def extract(self) -> Iterable[pd.DataFrame]:
+    def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         data_snapshots = []
         for date in pd.date_range(self.start_date, self.end_date):
-            data_snapshot: pd.DataFrame = self.__get_data_snapshot(date) #TODO: handle possible exceptions here
-            data_snapshots.append(data_snapshot)
+            data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date) #TODO: handle possible exceptions here
 
         return data_snapshots
 
@@ -45,4 +44,5 @@ if __name__ == '__main__':
         data_type=_data_type,
     )
     data = extractor.extract()
-    data_sample = data[0]
+    key_sample = list(data.keys())[0]
+    data_sample = data.get(key_sample)

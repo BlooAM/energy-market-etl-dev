@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import Iterable
+from typing import Dict
 
 import pandas as pd
 
@@ -13,11 +13,10 @@ class TgeExtractor(Extractor):
         self.end_date = end_date
         self.__scrapper = TgeScrapper(data_type=data_type)
 
-    def extract(self) -> Iterable[pd.DataFrame]:
-        data_snapshots = []
+    def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
+        data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
-            data_snapshot: pd.DataFrame = self.__scrapper.scrape(date=date) #TODO: handle possible exceptions here
-            data_snapshots.append(data_snapshot)
+            data_snapshots[date]: pd.DataFrame = self.__scrapper.scrape(date=date) #TODO: handle possible exceptions here
 
         return data_snapshots
 
@@ -33,4 +32,5 @@ if __name__ == '__main__':
         data_type=_data_type,
     )
     data = extractor.extract()
-    data_sample = data[0]
+    key_sample = list(data.keys())[0]
+    data_sample = data.get(key_sample)
