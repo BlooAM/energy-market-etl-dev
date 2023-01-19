@@ -4,7 +4,6 @@ from typing import Any
 
 import pydantic
 
-from energy_market_etl.etl_executor import EtlExecutor
 from energy_market_etl.etls.energy_market_etl import EnergyMarketEtl
 
 
