@@ -42,7 +42,7 @@ if __name__ == '__main__':
         # 1 TABLE HEAD
         table_head = table.thead
         table_head_rows = table_head.findAll('tr')
-        assert len(table_head_rows) == 2
+        assert len(table_head_rows) == 2 #TODO: remove asserts
 
         titles_row = table_head_rows[0]
         title_tags = [title_tag for title_tag in titles_row.findAll('th')]
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         subtitles_row = table_head_rows[1]
         subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
 
-        assert len(titles) == len(subtitles)
+        assert len(titles) == len(subtitles) #TODO: remove asserts
 
         column_names = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)] #TODO: fix first column name...
 
