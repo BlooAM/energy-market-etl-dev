@@ -30,7 +30,7 @@ class TgeScrapper:
         html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
         tables = html_parser.findAll('table', {'id': _RDN_TABLE_ID})
         if len(tables) != 1:
-            raise AttributeError('') #TODO: message here
+            raise AttributeError(f'Table does not exist for date: {date}') #TODO: message here
         else:
             table = tables[0]
             table_head_data = TgeScrapper._parse_table_metadata(table.thead) #TODO: check if table has attr thead
@@ -91,6 +91,6 @@ if __name__ == '__main__':
     future_date = dt.datetime(2024, 1, 1)
     past_date = dt.datetime(2020, 1, 1)
     data_type = 'rdn_data'
-    df = TgeScrapper(data_type=data_type).scrape(date=end_date)
+    df = TgeScrapper(data_type=data_type).scrape(date=start_date)
 
 

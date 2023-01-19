@@ -23,10 +23,9 @@ class TgeExtractor(Extractor):
 
 
 if __name__ == '__main__':
-    _start_date = dt.datetime(2020, 11, 15)
-    _end_date = dt.datetime(2020, 11, 17)
-    _data_type = 'system_data'
-    # _data_type = 'unit_generation_data'
+    _start_date = dt.datetime(2022, 11, 30)
+    _end_date = dt.datetime(2022, 12, 6)
+    _data_type = 'rdn_data'
 
     extractor = TgeExtractor(
         start_date=_start_date,
