@@ -6,6 +6,8 @@ from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.tge.tge_extractor import TgeExtractor
+from energy_market_etl.transformers.date_column.date_column_transformer import DateColumnTransformer
+from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import VerticalStackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
@@ -23,7 +25,7 @@ class MarketDataEtl(Etl):
 
     def extract(self) -> None:
         extract_layer: Union[Iterable[Extractor], Extractor] = TgeExtractor(
-
+            
         )
         if isinstance(extract_layer, collections.abc.Iterable):
             for extractor in extract_layer:
@@ -32,12 +34,12 @@ class MarketDataEtl(Etl):
                 extract_layer.extract()
 
     def transform(self) -> None:
-        transform_layer: Union[Iterable[Transformer], Transformer] = self.__construct_layer()
-        if isinstance(transform_layer, collections.abc.Iterable):
-            for transformer in transform_layer:
-                transformer.transform()
-            else:
-                transform_layer.transform()
+        transform_layer: Iterable[Transformer] = [
+            DateColumnTransformer(date_column_name='Data'), #TODO: argument spec in other place
+            VerticalStackTransformer()
+        ]
+        for transformer in transform_layer:
+            transformer.transform()
 
     def load(self) -> None:
         load_layer: Union[Iterable[Loader], Loader] = CsvLoader(

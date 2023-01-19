@@ -23,7 +23,7 @@ def _row_cell_formatter(row_value):
 
 class TgeScrapper:
     def __init__(self, data_type: str) -> None:
-        self.data_type = data_type #TODO: parse data_type -> pydantic
+        self.data_type = data_type #TODO: parse data_type -> not pydantic!
 
     def scrape(self, date: dt.datetime) -> pd.DataFrame:
         raw_html = self.__get_raw_html(date=date)
