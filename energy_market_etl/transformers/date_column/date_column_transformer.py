@@ -10,7 +10,7 @@ class DateColumnTransformer(Transformer):
     def __init__(self, date_column_name: str = 'Data'):
         self.date_column_name = date_column_name
 
-    def transform(self, raw_data_snapshots: Dict[dt.datetime, pd.DataFrame]):
+    def transform(self, raw_data_snapshots: Dict[dt.datetime, pd.DataFrame]) -> Dict[dt.datetime, pd.DataFrame]:
         data_snapshots = {}
         for datetime, raw_data_snapshot in raw_data_snapshots.items():
             date = datetime.date()
