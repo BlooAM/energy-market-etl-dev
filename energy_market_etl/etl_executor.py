@@ -89,9 +89,9 @@ class EtlExecutor(pydantic.BaseModel):
 
 
 if __name__ == '__main__':
-    start_date = dt.datetime(2020, 11, 15)
-    end_date = dt.datetime(2020, 12, 3)
-    end_date_ = dt.datetime(2020, 11, 13)
+    start_date = dt.datetime(2022, 12, 15)
+    end_date = dt.datetime(2022, 12, 30)
+    end_date_ = dt.datetime(2022, 11, 13)
     future_date = dt.datetime(2024, 1, 1)
     report_type = 'market_data'
 
@@ -101,3 +101,7 @@ if __name__ == '__main__':
         report_type=report_type,
     )
     etl = etl_executor.execute()
+    etl.extract()
+    extracted_data = etl._MarketDataEtl__extracted_data
+    key_sample = list(extracted_data.keys())[0]
+    data_sample = extracted_data.get(key_sample)
