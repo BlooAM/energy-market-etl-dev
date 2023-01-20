@@ -45,3 +45,6 @@ class EnergyMarketEtl(Etl):
 
     def __construct_layer(self):
         pass
+
+
+__all__ = class_names(EnergyMarketEtl)
