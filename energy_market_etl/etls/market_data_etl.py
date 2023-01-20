@@ -4,6 +4,7 @@ from typing import Dict, Iterable, List, Union
 
 import pandas as pd
 
+from energy_market_etl.utils.class_metadata_utils import class_names
 from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
@@ -55,3 +56,6 @@ class MarketDataEtl(Etl):
             file_name=self.report_name
         )
         load_layer.load(self.__transformed_data)
+
+
+__all__ = class_names(MarketDataEtl)

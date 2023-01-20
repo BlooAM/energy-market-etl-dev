@@ -2,13 +2,14 @@ import collections
 import datetime as dt
 from typing import Iterable, Union
 
+from energy_market_etl.utils.class_metadata_utils import class_names
 from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.etls.etl import Etl
 
 
-class EnergyMarketEtl(Etl):
+class EnergyMarketEtl:
     def __init__(
             self,
             start_date: dt.datetime,

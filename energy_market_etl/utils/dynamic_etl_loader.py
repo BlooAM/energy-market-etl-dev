@@ -12,12 +12,12 @@ __all__ = 'get_etls'
 PROJ_DIR = abspath(join(dirname(abspath(__file__)), '../..'))
 APP_DIR = os.path.join(PROJ_DIR, 'energy_market_etl')
 APP_MODULE = basename(APP_DIR)
-CURR_DIR = os.path.join(APP_DIR, 'etls')
-CURR_MODULE = basename(CURR_DIR)
+# CURR_DIR = os.path.join(APP_DIR, 'etls')
+# CURR_MODULE = basename(CURR_DIR)
 
 
 def get_modules(module):
-    file_dir = abspath(join(CURR_DIR, module))
+    file_dir = abspath(join(APP_DIR, module))
     for root, dirnames, files in walk(file_dir):
         mod_path = '{}{}'.format(APP_MODULE, root.split(APP_DIR)[1]).\
             replace(os.path.sep, '.')
@@ -38,7 +38,7 @@ def dynamic_loader(module, compare):
 
 
 def get_etls():
-    return dynamic_loader('models', is_etl)
+    return dynamic_loader('etls', is_etl)
 
 
 def is_etl(item):
@@ -48,6 +48,3 @@ def is_etl(item):
 def load_etls():
     for etl in get_etls():
         setattr(modules[__name__], etl.__name__, etl)
-
-
-load_etls()
