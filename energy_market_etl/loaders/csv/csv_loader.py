@@ -10,8 +10,8 @@ class CsvLoader(Loader):
         self.file_name = f'{file_name}.csv'
         self.file_path = file_path if file_path else None
 
-    def load(self, data: pd.DataFrame) -> None:
+    def load(self, transformed_data: pd.DataFrame) -> None:
         if self.file_path:
-            data.to_csv(path=f'{self.file_path}/{self.file_name}')
+            transformed_data.to_csv(path=f'{self.file_path}/{self.file_name}')
         else:
-            data.to_csv(path=f'{self.file_name}')
+            transformed_data.to_csv(path=f'{self.file_name}')
