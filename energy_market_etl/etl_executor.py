@@ -4,7 +4,7 @@ from typing import Any
 import pydantic
 
 from energy_market_etl.etls.etl import Etl
-from energy_market_etl.etls.market_data_etl import MarketDataEtl
+from energy_market_etl.utils.dynamic_etl_loader import get_etls
 
 _REPORT_TYPES_ETL_METADATA = {
     'market_data': {
@@ -84,12 +84,9 @@ class EtlExecutor(pydantic.BaseModel):
 
     def __get_etl(self) -> Etl:
         etl_metadata = _REPORT_TYPES_ETL_METADATA.get(self.report_type)
-        return MarketDataEtl( #TODO: add etl factory based on (data_source, report_name)
-            start_date=self.start_date,
-            end_date=self.end_date,
-            data_source=etl_metadata.get('data_source'),
-            report_name=etl_metadata.get('report_name'),
-        )
+        for EtlClass in get_etls():
+            if self.report_type in EtlClass.ETL_KEYS:
+                return EtlClass(**etl_metadata)
 
 
 if __name__ == '__main__':
@@ -104,4 +101,4 @@ if __name__ == '__main__':
         end_date=end_date,
         report_type=report_type,
     )
-    etl_executor.execute()
+    # etl_executor.execute()
