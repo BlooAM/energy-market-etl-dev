@@ -30,7 +30,7 @@ class TgeScrapper:
         html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
         tables = html_parser.findAll('table', {'id': _RDN_TABLE_ID})
         if len(tables) != 1:
-            raise AttributeError(f'Table does not exist for date: {date}') #TODO: message here
+            raise AttributeError(f'Table does not exist for date: {date}')
         else:
             table = tables[0]
             table_head_data = TgeScrapper._parse_table_metadata(table.thead) #TODO: check if table has attr thead
