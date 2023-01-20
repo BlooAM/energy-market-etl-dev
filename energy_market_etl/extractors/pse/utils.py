@@ -23,7 +23,7 @@ def __get_pse_system_data_url(date: dt.datetime) -> str:
     return f'{PSE_CSV_GET_BASIC_URL}/{PSE_SYSTEM_DATA_URL_PREFIX}/{year}{month:02d}{day:02d}'
 
 
-_PSE_DATA_TYPE_URL_MAPPER = {
+_PSE_DATA_TYPE_URL_MAPPER = { #TODO: keys in this dict must match Etl.ETL_KEYS
     'system_data': __get_pse_system_data_url,
-    'unit_generation_data': __get_pse_unit_generation_url,
+    'system_units_data': __get_pse_unit_generation_url,
 }

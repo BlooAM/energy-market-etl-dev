@@ -12,6 +12,6 @@ def __get_tge_rdn_url(date: dt.datetime) -> str:
     return f'{TGE_REQUEST_GET_BASIC_URL}?{TGE_RDN_URL_PREFIX}={day:02d}-{month:02d}-{year}'
 
 
-_TGE_DATA_TYPE_URL_MAPPER = {
-    'rdn_data': __get_tge_rdn_url,
+_TGE_DATA_TYPE_URL_MAPPER = { #TODO: keys in this dict must match Etl.ETL_KEYS
+    'market_data': __get_tge_rdn_url,
 }

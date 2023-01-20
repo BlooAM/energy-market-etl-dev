@@ -14,14 +14,14 @@ class FutureDateError(Exception):
     def __init__(self, date: dt.datetime, message: str) -> None:
         self.date = date
         self.message = message
-        super().__init__(message=self.message)
+        super().__init__(self.message)
 
 
 class ReportTypeNotImplementedError(Exception):
     def __init__(self, report_type: dt.datetime, message: str) -> None:
         self.report_type = report_type
         self.message = message
-        super().__init__(message=self.message)
+        super().__init__(self.message)
 
 
 class NonChronologicalDateOrderError(Exception):
@@ -29,7 +29,7 @@ class NonChronologicalDateOrderError(Exception):
         self.start_date = start_date
         self.end_date = end_date
         self.message = message
-        super().__init__(message=self.message)
+        super().__init__(self.message)
 
 
 class EtlExecutor(pydantic.BaseModel):
@@ -72,7 +72,6 @@ class EtlExecutor(pydantic.BaseModel):
 
     def execute(self):
         etl = self.__get_etl()
-        # print(etl)
         # etl.extract() #TODO: add loggs between layers
         # etl.transform() #TODO: add loggs between layers
         # etl.load() #TODO: add loggs between layers
@@ -81,11 +80,7 @@ class EtlExecutor(pydantic.BaseModel):
 
     def __get_etl(self) -> Etl:
         for EtlClass in get_etls():
-            print(EtlClass)
-            print(EtlClass.ETL_KEYS)
-            print(self.report_type)
             if self.report_type in EtlClass.ETL_KEYS:
-                print(EtlClass.ETL_KEYS)
                 return EtlClass(
                     start_date=self.start_date,
                     end_date=self.end_date,
