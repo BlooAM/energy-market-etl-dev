@@ -1,6 +1,6 @@
 import collections
 import datetime as dt
-from typing import Dict, Iterable, List, Union
+from typing import Dict, Iterable, List
 
 import pandas as pd
 

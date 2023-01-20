@@ -4,7 +4,7 @@ from typing import Any
 import pydantic
 
 from energy_market_etl.etls.etl import Etl
-from energy_market_etl.utils.dynamic_etl_loader import get_etls
+from energy_market_etl.utils.dynamic_etl_loader import get_etls, get_etl_keys
 
 
 _TODAY = dt.datetime.today()
@@ -43,16 +43,16 @@ class EtlExecutor(pydantic.BaseModel):
         if value > _TODAY:
             raise FutureDateError(
                 date=value,
-                message="`end_date` cannot be later than the current date"
+                message=f"given `end_date`={value} cannot be later than the current date"
             )
 
     @pydantic.validator("report_type")
     @classmethod
     def report_type_validator(cls, value: str) -> None:
-        if value not in _REPORT_TYPES_ETL_METADATA.keys():
+        if value not in get_etl_keys:
             raise ReportTypeNotImplementedError(
                 report_type=value,
-                message="`end_date` cannot be later than the current date"
+                message=f"given `report_type`={value} is not implemented"
             )
 
     @pydantic.root_validator(pre=True)
@@ -63,7 +63,7 @@ class EtlExecutor(pydantic.BaseModel):
             raise NonChronologicalDateOrderError(
                 start_date=start_date,
                 end_date=end_date,
-                message="`start_date` and `end_date` must be in chronological order",
+                message=f"`start_date`={start_date} and `end_date`={end_date} must be in chronological order",
             )
         return values
 

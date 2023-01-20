@@ -1,8 +1,10 @@
 from importlib import import_module
 from inspect import isclass
+import itertools
 import os
 from os import walk
 from os.path import abspath, basename, dirname, join
+from typing import List
 
 from energy_market_etl.etls.etl import Etl
 
@@ -38,5 +40,12 @@ def get_etls():
     return dynamic_loader('etls', is_etl)
 
 
-def is_etl(item):
+def get_etl_keys() -> List[str]:
+    etls = get_etls()
+    etl_key_lists = list(etl.ETL_KEYS for etl in etls)
+    etl_keys = list(set(itertools.chain(*etl_key_lists)))
+    return etl_keys
+
+
+def is_etl(item) -> bool:
     return isclass(item) and issubclass(item, Etl)
