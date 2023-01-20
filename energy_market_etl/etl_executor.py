@@ -39,21 +39,24 @@ class EtlExecutor(pydantic.BaseModel):
 
     @pydantic.validator("end_date")
     @classmethod
-    def end_date_validator(cls, value: dt.datetime) -> None:
+    def end_date_validator(cls, value: dt.datetime) -> dt.datetime:
         if value > _TODAY:
             raise FutureDateError(
                 date=value,
                 message=f"given `end_date`={value} cannot be later than the current date"
             )
+        return value
+
 
     @pydantic.validator("report_type")
     @classmethod
-    def report_type_validator(cls, value: str) -> None:
-        if value not in get_etl_keys:
+    def report_type_validator(cls, value: str) -> str:
+        if value not in get_etl_keys():
             raise ReportTypeNotImplementedError(
                 report_type=value,
                 message=f"given `report_type`={value} is not implemented"
             )
+        return value
 
     @pydantic.root_validator(pre=True)
     @classmethod
@@ -69,13 +72,20 @@ class EtlExecutor(pydantic.BaseModel):
 
     def execute(self):
         etl = self.__get_etl()
+        # print(etl)
         # etl.extract() #TODO: add loggs between layers
         # etl.transform() #TODO: add loggs between layers
         # etl.load() #TODO: add loggs between layers
 
+        return etl #TODO: remove this line after tests
+
     def __get_etl(self) -> Etl:
         for EtlClass in get_etls():
+            print(EtlClass)
+            print(EtlClass.ETL_KEYS)
+            print(self.report_type)
             if self.report_type in EtlClass.ETL_KEYS:
+                print(EtlClass.ETL_KEYS)
                 return EtlClass(
                     start_date=self.start_date,
                     end_date=self.end_date,
@@ -88,11 +98,11 @@ if __name__ == '__main__':
     end_date = dt.datetime(2020, 12, 3)
     end_date_ = dt.datetime(2020, 11, 13)
     future_date = dt.datetime(2024, 1, 1)
-    report_type = ''
+    report_type = 'market_data'
 
     etl_executor = EtlExecutor(
         start_date=start_date,
         end_date=end_date,
         report_type=report_type,
     )
-    # etl_executor.execute()
+    etl = etl_executor.execute()
