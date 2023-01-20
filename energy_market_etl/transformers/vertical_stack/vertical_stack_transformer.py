@@ -12,7 +12,7 @@ class VerticalStackTransformer(Transformer):
         self.sort_order_columns = sort_order_columns
 
     def transform(self, raw_data_snapshots: Dict[dt.datetime, pd.DataFrame]) -> pd.DataFrame:
-        data_snapshots = pd.concat(raw_data_snapshots, axis=0)
+        data_snapshots = pd.concat(raw_data_snapshots.values(), axis=0)
         if self.post_stack_sort:
             if set(self.sort_order_columns) <= set(data_snapshots.columns):
                 data_snapshots = data_snapshots.sort_values(by=self.sort_order_columns)

@@ -72,9 +72,9 @@ class EtlExecutor(pydantic.BaseModel):
 
     def execute(self):
         etl = self.__get_etl()
-        # etl.extract() #TODO: add loggs between layers
-        # etl.transform() #TODO: add loggs between layers
-        # etl.load() #TODO: add loggs between layers
+        etl.extract() #TODO: add loggs between layers
+        etl.transform() #TODO: add loggs between layers
+        etl.load() #TODO: add loggs between layers
 
         return etl #TODO: remove this line after tests
 
@@ -101,7 +101,9 @@ if __name__ == '__main__':
         report_type=report_type,
     )
     etl = etl_executor.execute()
-    etl.extract()
+
     extracted_data = etl._MarketDataEtl__extracted_data
     key_sample = list(extracted_data.keys())[0]
     data_sample = extracted_data.get(key_sample)
+
+    transformed_data = etl._MarketDataEtl__transformed_data
