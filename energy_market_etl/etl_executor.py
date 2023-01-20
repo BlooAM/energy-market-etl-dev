@@ -6,16 +6,7 @@ import pydantic
 from energy_market_etl.etls.etl import Etl
 from energy_market_etl.utils.dynamic_etl_loader import get_etls
 
-_REPORT_TYPES_ETL_METADATA = {
-    'market_data': {
-        'data_source': '',
-        'report_name': '',
-    },
-    'system_units_data': {
-        'data_source': '',
-        'report_name': '',
-    },
-} #TODO: change mapper structure + move implemented report types to config file
+
 _TODAY = dt.datetime.today()
 
 
@@ -83,10 +74,13 @@ class EtlExecutor(pydantic.BaseModel):
         # etl.load() #TODO: add loggs between layers
 
     def __get_etl(self) -> Etl:
-        etl_metadata = _REPORT_TYPES_ETL_METADATA.get(self.report_type)
         for EtlClass in get_etls():
             if self.report_type in EtlClass.ETL_KEYS:
-                return EtlClass(**etl_metadata)
+                return EtlClass(
+                    start_date=self.start_date,
+                    end_date=self.end_date,
+                    report_type=self.report_type,
+                )
 
 
 if __name__ == '__main__':

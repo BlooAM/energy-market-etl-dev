@@ -24,13 +24,12 @@ class MarketDataEtl(Etl):
             self,
             start_date: dt.datetime,
             end_date: dt.datetime,
-            data_source: str,
-            report_name: str,
+            report_type: str,
     ) -> None:
         self.start_date = start_date
         self.end_date = end_date
-        self.data_source = data_source
-        self.report_name = f'{report_name}_{start_date.date()}_{end_date.date()}'
+        self.data_source = report_type
+        self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
         self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
 
