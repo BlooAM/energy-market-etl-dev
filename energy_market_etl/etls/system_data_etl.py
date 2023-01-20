@@ -14,9 +14,10 @@ from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
 
-class MarketDataEtl(Etl):
+class SystemDataEtl(Etl):
     ETL_KEYS: List[str] = [
-        'market_data'
+        'system_data'
+        'system_units_data'
     ]
 
     def __init__(
@@ -56,4 +57,4 @@ class MarketDataEtl(Etl):
         load_layer.load(self.__transformed_data)
 
 
-__all__ = class_names(MarketDataEtl)
+__all__ = class_names(SystemDataEtl)

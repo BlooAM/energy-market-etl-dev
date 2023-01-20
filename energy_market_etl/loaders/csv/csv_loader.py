@@ -6,7 +6,7 @@ from energy_market_etl.loaders.loader import Loader
 
 
 class CsvLoader(Loader):
-    def __init__(self, file_name: str, file_path: Optional[str]) -> None:
+    def __init__(self, file_name: str, file_path: Optional[str] = '') -> None:
         self.file_name = f'{file_name}.csv'
         self.file_path = file_path if file_path else None
 
@@ -14,4 +14,4 @@ class CsvLoader(Loader):
         if self.file_path:
             transformed_data.to_csv(f'{self.file_path}/{self.file_name}')
         else:
-            transformed_data.to_csv(f'{self.file_name}')
+            transformed_data.to_csv(f'{self.file_name}') #TODO: save to separate folder within project folder, not app folder, add option for override
