@@ -28,17 +28,15 @@ def main():
         help="Last data snapshot date (YYYY-MM-DD format)",
         required=True
     )
-    # parser.add_argument(
-    #     "-v", "--verbose",
-    #     type=int,
-    #     help="The date of vaccination",
-    #     required=False
-    # )
     args = parser.parse_args()
 
     for arg in [args.start_date, args.end_date, args.report_type]:
         print(f'Argument={arg} /// Type={type(arg)}')
-    logging.basicConfig(encoding='utf-8', level=logging.INFO)
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        encoding='utf-8',
+        level=logging.INFO,
+    )
 
     etl_executor = EtlExecutor(
         start_date=args.start_date,
