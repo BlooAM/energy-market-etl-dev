@@ -15,7 +15,7 @@ from energy_market_etl.etls.etl import Etl
 
 class SystemDataEtl(Etl):
     ETL_KEYS: List[str] = [
-        'system_data'
+        'system_data',
         'system_units_data'
     ]
 

@@ -4,7 +4,7 @@ import itertools
 import os
 from os import walk
 from os.path import abspath, basename, dirname, join
-from typing import List
+from typing import List, Union
 
 from energy_market_etl.etls.etl import Etl
 

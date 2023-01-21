@@ -102,8 +102,8 @@ if __name__ == '__main__':
     )
     etl = etl_executor.execute()
 
-    extracted_data = etl._MarketDataEtl__extracted_data
+    extracted_data = etl._SystemDataEtl__extracted_data
     key_sample = list(extracted_data.keys())[0]
     data_sample = extracted_data.get(key_sample)
 
-    transformed_data = etl._MarketDataEtl__transformed_data
+    transformed_data = etl._SystemDataEtl__transformed_data
