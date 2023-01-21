@@ -1,5 +1,6 @@
 import datetime as dt
 import http.client
+import logging
 from http.client import IncompleteRead
 from itertools import chain, repeat
 from typing import List, Union
@@ -8,6 +9,7 @@ from urllib.error import HTTPError, URLError
 
 import bs4
 from bs4 import BeautifulSoup
+from dateutil.relativedelta import relativedelta
 import pandas as pd
 from retry import retry
 
@@ -26,32 +28,38 @@ def _row_cell_formatter(row_value):
 
 class TgeScrapper:
     _RDN_TABLE_ID = 'footable_kontrakty_godzinowe'
+    _RETENTION_HORIZON_MONTHS = 2
 
     def __init__(self, data_type: str) -> None:
         self.data_type = data_type #TODO: parse data_type -> not pydantic!
 
     def scrape(self, date: dt.datetime) -> pd.DataFrame:
-        # try:
-        #     raw_html = self.__get_raw_html(date=date)
-        # except HTTPError as e:
-        #     print(e)    #TODO: raise custom error
-        #     return None
-        # except URLError as e:
-        #     print(e)    #TODO: raise custom error
-        #     return None
-
-        html_parser = self.__get_html_parser(date=date)
-        tables = html_parser.findAll('table', {'id': TgeScrapper._RDN_TABLE_ID})
-        if len(tables) != 1:
-            raise AttributeError(f'Table does not exist for date: {date}')
+        today = dt.datetime.today()
+        last_available_data_snapshot_date = \
+            today - relativedelta(months=TgeScrapper._RETENTION_HORIZON_MONTHS) + relativedelta(days=1)
+        if date < last_available_data_snapshot_date:
+            logging.warning(f'TGE data not available for date: {date} due to retention policy')
+            return pd.DataFrame()
         else:
-            table = tables[0]
-            table_head_data = TgeScrapper._parse_table_metadata(table.thead) #TODO: check if table has attr thead
-            table_body_data = TgeScrapper._parse_table_data(table.tbody) #TODO: check if table has attr tbody
-            table_summary_data = TgeScrapper._parse_table_data(table.tfoot) #TODO: check if table has attr tfoot
-            data = [*table_body_data, *table_summary_data]
-            data_snapshot = pd.DataFrame(data, columns=table_head_data)
-            return data_snapshot
+            try:
+                html_parser = self.__get_html_parser(date=date)
+            except HTTPError as e:
+                print(e)    #TODO: raise custom error
+                return pd.DataFrame()
+            except URLError as e:
+                print(e)    #TODO: raise custom error
+                return pd.DataFrame()
+            tables = html_parser.findAll('table', {'id': TgeScrapper._RDN_TABLE_ID})
+            if len(tables) != 1:
+                raise AttributeError(f'Table does not exist for date: {date}')
+            else:
+                table = tables[0]
+                table_head_data = TgeScrapper._parse_table_metadata(table.thead) #TODO: check if table has attr thead
+                table_body_data = TgeScrapper._parse_table_data(table.tbody) #TODO: check if table has attr tbody
+                table_summary_data = TgeScrapper._parse_table_data(table.tfoot) #TODO: check if table has attr tfoot
+                data = [*table_body_data, *table_summary_data]
+                data_snapshot = pd.DataFrame(data, columns=table_head_data)
+                return data_snapshot
 
     @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS) #TODO: ???
     def __get_html_parser(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:

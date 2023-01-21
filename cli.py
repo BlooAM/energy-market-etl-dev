@@ -38,6 +38,7 @@ def main():
 
     for arg in [args.start_date, args.end_date, args.report_type]:
         print(f'Argument={arg} /// Type={type(arg)}')
+    logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
     etl_executor = EtlExecutor(
         start_date=args.start_date,
