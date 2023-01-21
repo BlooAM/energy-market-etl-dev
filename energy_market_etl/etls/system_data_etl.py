@@ -7,8 +7,7 @@ from energy_market_etl.utils.class_metadata_utils import class_names
 from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
-from energy_market_etl.extractors.tge.tge_extractor import TgeExtractor
-from energy_market_etl.transformers.date_column.date_column_transformer import DateColumnTransformer
+from energy_market_etl.extractors.pse.pse_extractor import PseExtractor
 from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import VerticalStackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
@@ -34,7 +33,7 @@ class SystemDataEtl(Etl):
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
 
     def extract(self) -> None:
-        extract_layer: Extractor = TgeExtractor(
+        extract_layer: Extractor = PseExtractor(
             start_date=self.start_date,
             end_date=self.end_date,
             data_type=self.data_source,
@@ -42,13 +41,9 @@ class SystemDataEtl(Etl):
         self.__extracted_data = extract_layer.extract()
 
     def transform(self) -> None:
-        transform_layer: Iterable[Transformer] = [
-            DateColumnTransformer(date_column_name='Data'), #TODO: argument spec in other place
-            VerticalStackTransformer()
-        ]
+        transform_layer: Transformer = VerticalStackTransformer()
         self.__transformed_data = self.__extracted_data.copy()
-        for transformer in transform_layer:
-            self.__transformed_data = transformer.transform(self.__transformed_data)
+        self.__transformed_data = transform_layer.transform(self.__transformed_data)
 
     def load(self) -> None:
         load_layer: Loader = CsvLoader(
