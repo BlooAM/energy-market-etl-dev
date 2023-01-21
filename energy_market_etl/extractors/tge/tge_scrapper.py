@@ -6,14 +6,16 @@ from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 
 import bs4
-import pandas as pd
 from bs4 import BeautifulSoup
+import pandas as pd
+from retry import retry
 
 from energy_market_etl.extractors.tge.utils import _TGE_DATA_TYPE_URL_MAPPER
 from energy_market_etl.utils.date_utils import FLOAT_REGEXP
 
 
-_RDN_TABLE_ID = 'footable_kontrakty_godzinowe'
+_HTTP_REQUEST_RETRY_DELAY_TIME = 30
+_HTTP_REQUEST_RETRY_ATTEMPTS = 3
 
 
 def _row_cell_formatter(row_value):
@@ -22,13 +24,23 @@ def _row_cell_formatter(row_value):
 
 
 class TgeScrapper:
+    _RDN_TABLE_ID = 'footable_kontrakty_godzinowe'
+
     def __init__(self, data_type: str) -> None:
         self.data_type = data_type #TODO: parse data_type -> not pydantic!
 
     def scrape(self, date: dt.datetime) -> pd.DataFrame:
-        raw_html = self.__get_raw_html(date=date)
+        try:
+            raw_html = self.__get_raw_html(date=date)
+        except HTTPError as e:
+            print(e)    #TODO: raise custom error
+            return None
+        except URLError as e:
+            print(e)    #TODO: raise custom error
+            return None
+
         html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
-        tables = html_parser.findAll('table', {'id': _RDN_TABLE_ID})
+        tables = html_parser.findAll('table', {'id': TgeScrapper._RDN_TABLE_ID})
         if len(tables) != 1:
             raise AttributeError(f'Table does not exist for date: {date}')
         else:
@@ -40,17 +52,11 @@ class TgeScrapper:
             data_snapshot = pd.DataFrame(data, columns=table_head_data)
             return data_snapshot
 
+    @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
     def __get_raw_html(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
         url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(self.data_type)
         url = url_getter(date)
-        try:
-            html = urlopen(url)
-        except HTTPError as e:
-            print(e)    #TODO: raise custom error
-            return None
-        except URLError as e:
-            print(e)    #TODO: raise custom error
-            return None
+        html = urlopen(url)
         return html
 
     @staticmethod

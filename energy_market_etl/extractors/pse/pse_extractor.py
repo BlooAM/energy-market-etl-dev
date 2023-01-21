@@ -9,6 +9,10 @@ from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.extractors.pse.utils import _PSE_DATA_TYPE_URL_MAPPER
 
 
+_HTTP_REQUEST_RETRY_DELAY_TIME = 60
+_HTTP_REQUEST_RETRY_ATTEMPTS = 5
+
+
 class PseExtractor(Extractor):
     def __init__(self, start_date: dt.datetime, end_date: dt.datetime, data_type: str):
         self.start_date = start_date
@@ -21,16 +25,16 @@ class PseExtractor(Extractor):
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
             try:
-                data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date) #TODO: handle possible exceptions here
+                data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date)
             except HTTPError as e:
                 print(e)  # TODO: raise custom error
-                return None
+                return {}
             except URLError as e:
                 print(e)  # TODO: raise custom error
-                return None
+                return {}
         return data_snapshots
 
-    @retry(HTTPError, delay=60, tries=5) #TODO: parameter as CONSTS
+    @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
     def __get_data_snapshot(self, date: dt.datetime) -> pd.DataFrame:
         url: str = self.__url_getter(date)
         data_snapshot: pd.DataFrame = pd.read_csv(
