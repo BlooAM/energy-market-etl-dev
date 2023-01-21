@@ -47,7 +47,6 @@ class EtlExecutor(pydantic.BaseModel):
             )
         return value
 
-
     @pydantic.validator("report_type")
     @classmethod
     def report_type_validator(cls, value: str) -> str:
@@ -72,9 +71,9 @@ class EtlExecutor(pydantic.BaseModel):
 
     def execute(self):
         etl = self.__get_etl()
-        # etl.extract() #TODO: add loggs between layers
-        # etl.transform() #TODO: add loggs between layers
-        # etl.load() #TODO: add loggs between layers
+        etl.extract() #TODO: add loggs between layers
+        etl.transform() #TODO: add loggs between layers
+        etl.load() #TODO: add loggs between layers
 
         return etl #TODO: remove this line after tests
 

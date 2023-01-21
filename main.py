@@ -2,6 +2,8 @@ import datetime as dt
 
 from energy_market_etl.etl_executor import EtlExecutor
 
+import pydantic
+
 
 if __name__ == '__main__':
     period_start_date = dt.datetime(2022, 12, 16)

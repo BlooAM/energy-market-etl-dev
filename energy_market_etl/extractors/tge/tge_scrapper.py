@@ -47,7 +47,7 @@ class TgeScrapper:
             html = urlopen(url)
         except HTTPError as e:
             print(e)    #TODO: raise custom error
-            return  None
+            return None
         except URLError as e:
             print(e)    #TODO: raise custom error
             return None

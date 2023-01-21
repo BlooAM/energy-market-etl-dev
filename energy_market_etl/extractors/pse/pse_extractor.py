@@ -1,7 +1,9 @@
 import datetime as dt
 from typing import Dict
+from urllib.error import URLError, HTTPError
 
 import pandas as pd
+from retry import retry
 
 from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.extractors.pse.utils import _PSE_DATA_TYPE_URL_MAPPER
@@ -16,12 +18,19 @@ class PseExtractor(Extractor):
             raise NotImplementedError(f'data type: {data_type} not implemented') #TODO: replace with custom Exception
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
-        data_snapshots = []
+        data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
-            data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date) #TODO: handle possible exceptions here
-
+            try:
+                data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date) #TODO: handle possible exceptions here
+            except HTTPError as e:
+                print(e)  # TODO: raise custom error
+                return None
+            except URLError as e:
+                print(e)  # TODO: raise custom error
+                return None
         return data_snapshots
 
+    @retry(HTTPError, delay=60, tries=5) #TODO: parameter as CONSTS
     def __get_data_snapshot(self, date: dt.datetime) -> pd.DataFrame:
         url: str = self.__url_getter(date)
         data_snapshot: pd.DataFrame = pd.read_csv(
