@@ -1,5 +1,6 @@
 import datetime as dt
 import http.client
+from http.client import IncompleteRead
 from itertools import chain, repeat
 from typing import List, Union
 from urllib.request import urlopen
@@ -15,7 +16,7 @@ from energy_market_etl.utils.date_utils import FLOAT_REGEXP
 
 
 _HTTP_REQUEST_RETRY_DELAY_TIME = 30
-_HTTP_REQUEST_RETRY_ATTEMPTS = 3
+_HTTP_REQUEST_RETRY_ATTEMPTS = 5
 
 
 def _row_cell_formatter(row_value):
@@ -30,16 +31,16 @@ class TgeScrapper:
         self.data_type = data_type #TODO: parse data_type -> not pydantic!
 
     def scrape(self, date: dt.datetime) -> pd.DataFrame:
-        try:
-            raw_html = self.__get_raw_html(date=date)
-        except HTTPError as e:
-            print(e)    #TODO: raise custom error
-            return None
-        except URLError as e:
-            print(e)    #TODO: raise custom error
-            return None
+        # try:
+        #     raw_html = self.__get_raw_html(date=date)
+        # except HTTPError as e:
+        #     print(e)    #TODO: raise custom error
+        #     return None
+        # except URLError as e:
+        #     print(e)    #TODO: raise custom error
+        #     return None
 
-        html_parser = BeautifulSoup(raw_html.read(), 'html.parser')
+        html_parser = self.__get_html_parser(date=date)
         tables = html_parser.findAll('table', {'id': TgeScrapper._RDN_TABLE_ID})
         if len(tables) != 1:
             raise AttributeError(f'Table does not exist for date: {date}')
@@ -52,12 +53,13 @@ class TgeScrapper:
             data_snapshot = pd.DataFrame(data, columns=table_head_data)
             return data_snapshot
 
-    # @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS) #TODO: ???
-    def __get_raw_html(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
+    @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS) #TODO: ???
+    def __get_html_parser(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
         url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(self.data_type)
         url = url_getter(date)
         html = urlopen(url)
-        return html
+        html_parser = BeautifulSoup(html.read(), 'html.parser')
+        return html_parser
 
     @staticmethod
     def _parse_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:

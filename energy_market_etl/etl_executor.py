@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 from typing import Any
 
 import pydantic
@@ -71,9 +72,18 @@ class EtlExecutor(pydantic.BaseModel):
 
     def execute(self):
         etl = self.__get_etl()
+
+        logging.info('Data extraction started...')
         etl.extract() #TODO: add loggs between layers
+        logging.info('Data extraction ended...')
+
+        logging.info('Data transfomation started...')
         etl.transform() #TODO: add loggs between layers
+        logging.info('Data transfomation ended...')
+
+        logging.info('Data loading started...')
         etl.load() #TODO: add loggs between layers
+        logging.info('Data loading ended...')
 
         return etl #TODO: remove this line after tests
 
@@ -101,8 +111,8 @@ if __name__ == '__main__':
     )
     etl = etl_executor.execute()
 
-    extracted_data = etl._SystemDataEtl__extracted_data
+    extracted_data = etl._MarketDataEtl__extracted_data
     key_sample = list(extracted_data.keys())[0]
     data_sample = extracted_data.get(key_sample)
 
-    transformed_data = etl._SystemDataEtl__transformed_data
+    transformed_data = etl._MarketDataEtl__transformed_data
