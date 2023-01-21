@@ -52,7 +52,7 @@ class TgeScrapper:
             data_snapshot = pd.DataFrame(data, columns=table_head_data)
             return data_snapshot
 
-    @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
+    # @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS) #TODO: ???
     def __get_raw_html(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
         url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(self.data_type)
         url = url_getter(date)
