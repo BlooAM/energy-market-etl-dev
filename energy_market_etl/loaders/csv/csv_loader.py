@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 import pandas as pd
@@ -11,7 +12,9 @@ class CsvLoader(Loader):
         self.file_path = file_path if file_path else None
 
     def load(self, transformed_data: pd.DataFrame) -> None:
-        if self.file_path:
-            transformed_data.to_csv(f'{self.file_path}/{self.file_name}')
+        if transformed_data.empty:
+            transformed_data.to_csv(f'{self.file_path}/{self.file_name}') if self.file_path \
+                else transformed_data.to_csv(f'{self.file_name}')
         else:
-            transformed_data.to_csv(f'{self.file_name}') #TODO: save to separate folder within project folder, not app folder, add option for override
+            logging.warning('No data to load. Omitting load phase')
+

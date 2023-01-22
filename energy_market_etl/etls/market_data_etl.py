@@ -9,7 +9,7 @@ from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.tge.tge_extractor import TgeExtractor
 from energy_market_etl.transformers.date_column.date_column_transformer import DateColumnTransformer
-from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import VerticalStackTransformer
+from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import StackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
@@ -45,7 +45,7 @@ class MarketDataEtl(Etl):
     def transform(self) -> None:
         transform_layer: Iterable[Transformer] = [
             DateColumnTransformer(date_column_name='Data'), #TODO: argument spec in other place
-            VerticalStackTransformer()
+            StackTransformer(stack_dimension='vertical')
         ]
         self.__transformed_data = self.__extracted_data.copy()
         for transformer in transform_layer:

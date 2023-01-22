@@ -8,7 +8,7 @@ from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.pse.pse_extractor import PseExtractor
-from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import VerticalStackTransformer
+from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import StackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
@@ -43,7 +43,7 @@ class SystemDataEtl(Etl):
         self.__extracted_data = extract_layer.extract()
 
     def transform(self) -> None:
-        transform_layer: Transformer = VerticalStackTransformer()
+        transform_layer: Transformer = StackTransformer(stack_dimension='vertical')
         self.__transformed_data = self.__extracted_data.copy()
         self.__transformed_data = transform_layer.transform(self.__transformed_data)
 

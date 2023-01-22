@@ -53,19 +53,3 @@ class PseExtractor(Extractor):
             endpoint=self.data_access_endpoint,
         )
         return url_provider
-
-
-if __name__ == '__main__':
-    _start_date = dt.datetime(2020, 11, 15)
-    _end_date = dt.datetime(2020, 11, 17)
-    _data_type = 'system_data'
-    # _data_type = 'unit_generation_data'
-
-    extractor = PseExtractor(
-        start_date=_start_date,
-        end_date=_end_date,
-        data_type=_data_type,
-    )
-    data = extractor.extract()
-    key_sample = list(data.keys())[0]
-    data_sample = data.get(key_sample)
