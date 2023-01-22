@@ -20,12 +20,3 @@ class StackTransformer(Transformer):
             axis = 0 if self.stack_dimension == 'vertical' else 1
             data_snapshots = pd.concat(snapshots_to_stack, axis=axis)
             return data_snapshots
-
-
-        if self.post_stack_sort:
-            if set(self.sort_order_columns) <= set(data_snapshots.columns):
-                data_snapshots = data_snapshots.sort_values(by=self.sort_order_columns)
-            else:
-                raise AttributeError(f'Sort order columns: {self.sort_order_columns} do not match with transformer '
-                                     f'data columns')
-
