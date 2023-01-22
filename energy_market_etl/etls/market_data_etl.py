@@ -9,7 +9,7 @@ from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.tge.tge_extractor import TgeExtractor
 from energy_market_etl.transformers.date_column.date_column_transformer import DateColumnTransformer
-from energy_market_etl.transformers.vertical_stack.vertical_stack_transformer import StackTransformer
+from energy_market_etl.transformers.vertical_stack.stack_transformer import StackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
 
