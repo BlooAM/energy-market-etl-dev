@@ -24,6 +24,7 @@ class PseExtractor(Extractor):
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
+
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
             try:

@@ -25,10 +25,12 @@ class UrlProviderFactory:
                 url_base=url_base,
                 endpoint=endpoint,
             )
-        else:
+        elif self.url_type == 'parametrized':
             return lambda date: UrlProviderFactory.parametrized_url_provider(
                 date=date,
                 url_base=url_base,
                 endpoint=endpoint,
                 parameter_name=parameter_name,
             )
+        else:
+            raise NotImplementedError('') #TODO: error message here
