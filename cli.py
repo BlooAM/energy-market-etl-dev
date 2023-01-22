@@ -3,7 +3,8 @@ import logging
 import datetime as dt
 
 from energy_market_etl.utils.dynamic_etl_loader import get_etl_keys
-from energy_market_etl.etl_executor import EtlExecutor
+from energy_market_etl.etl_executor import EtlExecutor, FutureDateError, NonChronologicalDateOrderError, \
+    ReportTypeNotImplementedError
 
 
 def main():
@@ -49,5 +50,11 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except FutureDateError as e:
+        logging.error(e)
+    except ReportTypeNotImplementedError as e:
+        logging.error(e)
+    except NonChronologicalDateOrderError as e:
+        logging.error(e)
     except Exception as e:
         logging.exception(e)
