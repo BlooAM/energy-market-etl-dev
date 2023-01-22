@@ -69,9 +69,11 @@ class TgeScrapper:
     @staticmethod
     def _parse_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
         row_cells = row.findAll('td')
-        if len(row_cells) != 7:
+        expected_no_cells = 7
+        if len(row_cells) != expected_no_cells:
             raise InvalidTableStructure(
-                message=f''
+                message=f'Invalid structure - TGE table should consist of {expected_no_cells} columns, '
+                        f'instead found {len(row_cells)}'
             )
         index_row_value = row_cells[0].text
         numeric_row_values = [_row_cell_formatter(row.text) for row in row_cells[1:]]
@@ -86,9 +88,11 @@ class TgeScrapper:
     @staticmethod
     def _parse_table_metadata(raw_table_content: bs4.element.Tag) -> List[str]:
         table_head_rows = raw_table_content.findAll('tr')
-        if len(table_head_rows) != 2:
+        expected_no_head_rows = 2
+        if len(table_head_rows) != expected_no_head_rows:
             raise InvalidTableStructure(
-                message=f''
+                message=f'Invalid structure - TGE table should consist of {expected_no_head_rows} head rows, '
+                        f'instead found {len(table_head_rows)}'
             )
 
         titles_row = table_head_rows[0]
@@ -100,9 +104,5 @@ class TgeScrapper:
         subtitles_row = table_head_rows[1]
         subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
 
-        if len(titles) != len(subtitles):
-            raise InvalidTableStructure(
-                message=f''
-            )
         parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)]
         return parsed_rows

@@ -19,7 +19,7 @@ class TgeExtractor(Extractor):
         self.end_date = end_date
         self.data_access_endpoint = data_access_endpoint
         self.__url_provider_factory = UrlProviderFactory(url_type='parametrized')
-        self.__scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe--') #TODO: dynamic table_id (via constructor?)
+        self.__scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
