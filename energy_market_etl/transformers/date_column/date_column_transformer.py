@@ -14,11 +14,11 @@ class DateColumnTransformer(Transformer):
         data_snapshots = {}
         for datetime, raw_data_snapshot in raw_data_snapshots.items():
             date = datetime.date()
-            data_snapshots[datetime]: pd.DataFrame = raw_data_snapshot.copy()
+            data_snapshots[datetime] = raw_data_snapshot.copy()
             data_snapshots[datetime].insert(
                 loc=0,
                 column=self.date_column_name,
-                value=date,
+                value=str(date),
                 allow_duplicates=True,
             )
 

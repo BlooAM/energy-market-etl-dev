@@ -14,6 +14,8 @@ _HTTP_REQUEST_RETRY_ATTEMPTS = 5
 
 
 class PseExtractor(Extractor):
+    _PSE_CSV_URL_BASE = 'https://pse.pl/getcsv/-/export/csv'
+
     def __init__(self, start_date: dt.datetime, end_date: dt.datetime, data_type: str):
         self.start_date = start_date
         self.end_date = end_date
@@ -25,7 +27,7 @@ class PseExtractor(Extractor):
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
             try:
-                data_snapshots[date]: pd.DataFrame = self.__get_data_snapshot(date)
+                data_snapshots[date] = self.__get_data_snapshot(date)
             except HTTPError as e:
                 print(e)  # TODO: raise custom error
                 return {}
