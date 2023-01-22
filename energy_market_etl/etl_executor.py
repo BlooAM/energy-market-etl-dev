@@ -90,7 +90,7 @@ class EtlExecutor(pydantic.BaseModel):
 
     def __get_etl(self) -> Etl:
         for EtlClass in get_etls():
-            if self.report_type in EtlClass.ETL_KEYS:
+            if self.report_type in EtlClass.ETL_METADATA.keys():
                 return EtlClass(
                     start_date=self.start_date,
                     end_date=self.end_date,

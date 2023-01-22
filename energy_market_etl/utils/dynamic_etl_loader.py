@@ -42,7 +42,7 @@ def get_etls():
 
 def get_etl_keys() -> List[str]:
     etls = get_etls()
-    etl_key_lists = list(etl.ETL_KEYS for etl in etls)
+    etl_key_lists = list(etl.ETL_METADATA.keys() for etl in etls)
     etl_keys = list(set(itertools.chain(*etl_key_lists)))
     return etl_keys
 

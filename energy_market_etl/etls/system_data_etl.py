@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import Dict, List
+from typing import Dict
 
 import pandas as pd
 
@@ -14,10 +14,10 @@ from energy_market_etl.etls.etl import Etl
 
 
 class SystemDataEtl(Etl):
-    ETL_KEYS: List[str] = [
-        'system_data',
-        'system_units_data'
-    ]
+    ETL_METADATA: Dict[str, str] = { #TODO: `/data` part of endpoint -> move to extractor
+        'system_data': 'PL_WYK_KSE/data',
+        'system_units_data': 'PL_GEN_MOC_JW_EPS/data',
+    }
 
     def __init__(
             self,
@@ -27,16 +27,18 @@ class SystemDataEtl(Etl):
     ) -> None:
         self.start_date = start_date
         self.end_date = end_date
-        self.data_source = report_type
         self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
         self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
+        self.data_access_endpoint = SystemDataEtl.ETL_METADATA.get(report_type)
+        if not self.data_access_endpoint:
+            raise NotImplementedError('') #TODO: exception handling + log here
 
     def extract(self) -> None:
         extract_layer: Extractor = PseExtractor(
             start_date=self.start_date,
             end_date=self.end_date,
-            data_type=self.data_source,
+            data_access_endpoint=self.data_access_endpoint,
         )
         self.__extracted_data = extract_layer.extract()
 

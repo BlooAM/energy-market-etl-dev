@@ -1,24 +1,34 @@
 import datetime as dt
+from typing import Callable, Optional
 
 from energy_market_etl.utils.date_utils import extract_date_components
 
 
-class UrlProvider:
+class UrlProviderFactory:
     def __init__(self, url_type: str) -> None:
         self.url_type = url_type
 
     @staticmethod
-    def endpoint_url_provider(cls, date: dt.datetime, url_base: str, prefix: str):
+    def endpoint_url_provider(date: dt.datetime, url_base: str, endpoint: str) -> str:
         year, month, day = extract_date_components(date)
-        return f'{url_base}/{prefix}/{year}{month:02d}{day:02d}'
+        return f'{url_base}/{endpoint}/{year}{month:02d}{day:02d}'
 
     @staticmethod
-    def parametrized_url_provider(cls, date: dt.datetime, url_base: str, prefix: str):
+    def parametrized_url_provider(date: dt.datetime, url_base: str, endpoint: str, parameter_name: str) -> str:
         year, month, day = extract_date_components(date)
-        return f'{url_base}?{prefix}={day:02d}-{month:02d}-{year}'
+        return f'{url_base}/{endpoint}?{parameter_name}={day:02d}-{month:02d}-{year}'
 
-    def get_url_provider(self):
+    def get_url_provider(self, url_base: str, endpoint: str, parameter_name: Optional[str] = '') -> Callable:
         if self.url_type == 'endpoint':
-            return UrlProvider.endpoint_url_provider
+            return lambda date: UrlProviderFactory.endpoint_url_provider(
+                date=date,
+                url_base=url_base,
+                endpoint=endpoint,
+            )
         else:
-            return UrlProvider.parametrized_url_provider
+            return lambda date: UrlProviderFactory.parametrized_url_provider(
+                date=date,
+                url_base=url_base,
+                endpoint=endpoint,
+                parameter_name=parameter_name,
+            )
