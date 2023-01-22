@@ -16,7 +16,7 @@ class TgeExtractor(Extractor):
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
-            data_snapshots[date]: pd.DataFrame = self.__scrapper.scrape(date=date) #TODO: handle possible exceptions here
+            data_snapshots[date] = self.__scrapper.scrape(date=date) #TODO: handle possible exceptions here
 
         return data_snapshots
 

@@ -6,7 +6,7 @@ from typing import Tuple
 FLOAT_REGEXP = re.compile(r"^[-+]?(?:\b\d+(?:\.\d*)?|\.\d+\b)(?:[eE][-+]?\d+\b)?$").match
 
 
-def extract_date_components(date: dt.datetime) -> Tuple[int]:
+def extract_date_components(date: dt.datetime) -> Tuple[int, int, int]:
     year = date.year
     month = date.month
     day = date.day

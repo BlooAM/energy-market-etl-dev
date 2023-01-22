@@ -20,7 +20,7 @@ class FutureDateError(Exception):
 
 
 class ReportTypeNotImplementedError(Exception):
-    def __init__(self, report_type: dt.datetime, message: str) -> None:
+    def __init__(self, report_type: str, message: str) -> None:
         self.report_type = report_type
         self.message = message
         super().__init__(self.message)
@@ -75,16 +75,16 @@ class EtlExecutor(pydantic.BaseModel):
         etl = self.__get_etl()
 
         logger.info('Data extraction started...')
-        etl.extract() #TODO: add loggs between layers
-        logger.info('Data extraction ended...')
+        etl.extract()
+        logger.info('Data extraction ended\n')
 
         logger.info('Data transfomation started...')
-        etl.transform() #TODO: add loggs between layers
-        logger.info('Data transfomation ended...')
+        etl.transform()
+        logger.info('Data transfomation ended\n')
 
         logger.info('Data loading started...')
-        etl.load() #TODO: add loggs between layers
-        logger.info('Data loading ended...')
+        etl.load()
+        logger.info('Data loading ended\n')
 
         return etl #TODO: remove this line after tests
 

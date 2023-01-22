@@ -62,7 +62,7 @@ class TgeScrapper:
                 return data_snapshot
 
     @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS) #TODO: ???
-    def __get_html_parser(self, date: dt.datetime) -> Union[http.client.HTTPResponse, None]:
+    def __get_html_parser(self, date: dt.datetime) -> BeautifulSoup:
         url_getter = _TGE_DATA_TYPE_URL_MAPPER.get(self.data_type)
         url = url_getter(date)
         html = urlopen(url)
