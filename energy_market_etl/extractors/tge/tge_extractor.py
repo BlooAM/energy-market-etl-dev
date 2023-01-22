@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd
 
 from energy_market_etl.extractors.extractor import Extractor
-from energy_market_etl.extractors.tge.tge_scrapper import TgeScrapper
+from energy_market_etl.extractors.tge.tge_scrapper import TgeScrapper, TableNotFoundError, InvalidTableStructure
 from energy_market_etl.utils.url_utils import UrlProviderFactory
 
 
@@ -19,7 +19,7 @@ class TgeExtractor(Extractor):
         self.end_date = end_date
         self.data_access_endpoint = data_access_endpoint
         self.__url_provider_factory = UrlProviderFactory(url_type='parametrized')
-        self.__scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
+        self.__scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe--') #TODO: dynamic table_id (via constructor?)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
@@ -28,7 +28,14 @@ class TgeExtractor(Extractor):
         for date in pd.date_range(self.start_date, self.end_date):
             if TgeExtractor.is_data_available(date=date):
                 url = url_provider(date=date)
-                data_snapshots[date] = self.__scrapper.scrape(url=url)  # TODO: handle possible exceptions here
+                try:
+                    data_snapshots[date] = self.__scrapper.scrape(url=url)
+                except TableNotFoundError as e:
+                    logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
+                    continue
+                except InvalidTableStructure as e:
+                    logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
+                    continue
             else:
                 logging.warning(f'TGE data not available for date: {date} due to retention policy')
 

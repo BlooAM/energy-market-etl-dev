@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 from typing import Dict, Iterable
 
 import pandas as pd
@@ -12,7 +13,13 @@ class VerticalStackTransformer(Transformer):
         self.sort_order_columns = sort_order_columns
 
     def transform(self, raw_data_snapshots: Dict[dt.datetime, pd.DataFrame]) -> pd.DataFrame:
-        data_snapshots = pd.concat(raw_data_snapshots.values(), axis=0)
+        snapshots_to_stack = raw_data_snapshots.values()
+        if not snapshots_to_stack:
+            logging.warning('')
+            return pd.DataFrame()
+        else:
+            data_snapshots = pd.concat(snapshots_to_stack, axis=0)
+
         if self.post_stack_sort:
             if set(self.sort_order_columns) <= set(data_snapshots.columns):
                 data_snapshots = data_snapshots.sort_values(by=self.sort_order_columns)
