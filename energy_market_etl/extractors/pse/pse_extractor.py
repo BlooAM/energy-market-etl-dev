@@ -16,11 +16,11 @@ _HTTP_REQUEST_RETRY_ATTEMPTS = 5
 class PseExtractor(Extractor):
     _PSE_CSV_URL_BASE = 'https://pse.pl/getcsv/-/export/csv'
 
-    def __init__(self, start_date: dt.datetime, end_date: dt.datetime, data_access_endpoint: str):
+    def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
         self.start_date = start_date
         self.end_date = end_date
-        self.data_access_endpoint = data_access_endpoint
-        self.url_provider_factory = UrlProviderFactory(url_type='endpoint')
+        # self.data_access_endpoint = data_access_endpoint
+        self.url_provider_factory = url_provider_factory
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
@@ -50,6 +50,17 @@ class PseExtractor(Extractor):
     def __get_url_provider(self) -> Callable:
         url_provider = self.url_provider_factory.get_url_provider(
             url_base=PseExtractor._PSE_CSV_URL_BASE,
-            endpoint=self.data_access_endpoint,
+            # endpoint=self.data_access_endpoint,
         )
         return url_provider
+
+
+if __name__ == '__main__':
+    period_start_date = dt.datetime(2023, 1, 1)
+    period_end_date = dt.datetime(2023, 1, 5)
+    url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint='PL_WYK_KSE/data')
+    extractor = PseExtractor(
+        start_date=period_start_date,
+        end_date=period_end_date,
+        url_provider_factory=url_provider_factory,
+    )

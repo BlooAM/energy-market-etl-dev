@@ -14,11 +14,11 @@ class TgeExtractor(Extractor):
     _TGE_REQUEST_URL_BASE = 'https://tge.pl/energia-elektryczna-rdn'
     _RETENTION_HORIZON_MONTHS = 2
 
-    def __init__(self, start_date: dt.datetime, end_date: dt.datetime, data_access_endpoint: str):
+    def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
         self.start_date = start_date
         self.end_date = end_date
-        self.data_access_endpoint = data_access_endpoint
-        self.url_provider_factory = UrlProviderFactory(url_type='parametrized')
+        # self.data_access_endpoint = data_access_endpoint
+        self.url_provider_factory = url_provider_factory
         self.scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
@@ -44,7 +44,7 @@ class TgeExtractor(Extractor):
     def __get_url_provider(self) -> Callable:
         url_provider = self.url_provider_factory.get_url_provider(
             url_base=TgeExtractor._TGE_REQUEST_URL_BASE,
-            endpoint=self.data_access_endpoint,
+            # endpoint=self.data_access_endpoint,
             parameter_name='dateShow'
         )
         return url_provider
