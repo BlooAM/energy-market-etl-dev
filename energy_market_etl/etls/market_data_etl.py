@@ -1,8 +1,6 @@
 import datetime as dt
 from typing import Dict, Iterable
 
-import pandas as pd
-
 from energy_market_etl.utils.class_metadata_utils import class_names
 from energy_market_etl.utils.url_utils import UrlProviderFactory
 from energy_market_etl.extractors.extractor import Extractor
@@ -29,9 +27,6 @@ class MarketDataEtl(Etl):
         super().__init__(start_date=start_date, end_date=end_date, report_type=report_type)
         endpoint = MarketDataEtl.ETL_METADATA.get(report_type)
         self.url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint=endpoint)
-        # self.data_access_endpoint = MarketDataEtl.ETL_METADATA.get(report_type)
-        # if not self.data_access_endpoint:
-        #     raise NotImplementedError('')  # TODO: exception handling + log here
 
     def extract(self) -> None:
         extract_layer: Extractor = TgeExtractor(
