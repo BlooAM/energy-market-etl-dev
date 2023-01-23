@@ -21,5 +21,5 @@ class SortTransformer(Transformer):
                     data_snapshots_sorted[date] = data_snapshots[date].sort_values(by=self.sort_by_columns)
             return data_snapshots_sorted
         else:
-            raise AttributeError(f'Sort order columns: {self.sort_order_columns} do not match with transformer '
+            raise AttributeError(f'Sort order columns: {self.sort_by_columns} do not match with transformer '
                                  f'data columns')
