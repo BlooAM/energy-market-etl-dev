@@ -56,13 +56,7 @@ class TgeScrapper:
 
     @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
     def __get_html_parser(self, url: str) -> BeautifulSoup:
-        try:
-            html = urlopen(url)
-        except HTTPError as e:
-            print(e)  # TODO: raise custom error
-        except URLError as e:
-            print(e)  # TODO: raise custom error
-
+        html = urlopen(url) #TODO: catch exceptions HTTPError, UrlError
         html_parser = BeautifulSoup(html.read(), 'html.parser')
         return html_parser
 

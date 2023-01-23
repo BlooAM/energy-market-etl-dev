@@ -2,6 +2,8 @@ import argparse
 import logging
 import datetime as dt
 
+import coloredlogs
+
 from energy_market_etl.utils.dynamic_etl_loader import get_etl_keys
 from energy_market_etl.etl_executor import EtlExecutor, FutureDateError, NonChronologicalDateOrderError, \
     ReportTypeNotImplementedError
@@ -31,14 +33,11 @@ def main():
     )
     args = parser.parse_args()
 
-    for arg in [args.start_date, args.end_date, args.report_type]:
-        print(f'Argument={arg} /// Type={type(arg)}')
-    logging.basicConfig(
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        encoding='utf-8',
-        level=logging.INFO,
+    coloredlogs.install(
+        fmt='%(asctime)s - %(levelname)s - %(message)s',
+        level='INFO',
+        datefmt='%Y-%m-%d %H:%M:%S',
     )
-
     etl_executor = EtlExecutor(
         start_date=args.start_date,
         end_date=args.end_date,
@@ -57,4 +56,4 @@ if __name__ == "__main__":
     except NonChronologicalDateOrderError as e:
         logging.error(e)
     except Exception as e:
-        logging.exception(e)
+        logging.exception(f'Program has stopped. An error has occured with the followin message\n: "{e}"')
