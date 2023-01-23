@@ -42,9 +42,7 @@ class SystemDataEtl(Etl):
         self.__transformed_data = transform_layer.transform(self.__transformed_data)
 
     def load(self) -> None:
-        load_layer: Loader = CsvLoader(
-            file_name=self.report_name
-        )
+        load_layer: Loader = CsvLoader(file_name=self.report_name)
         load_layer.load(self.__transformed_data)
 
 

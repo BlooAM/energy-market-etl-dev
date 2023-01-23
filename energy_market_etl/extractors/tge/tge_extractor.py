@@ -11,13 +11,12 @@ from energy_market_etl.utils.url_utils import UrlProviderFactory
 
 
 class TgeExtractor(Extractor):
-    _TGE_REQUEST_URL_BASE = 'https://tge.pl/energia-elektryczna-rdn'
+    _TGE_REQUEST_URL_BASE = 'https://tge.pl'
     _RETENTION_HORIZON_MONTHS = 2
 
     def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
         self.start_date = start_date
         self.end_date = end_date
-        # self.data_access_endpoint = data_access_endpoint
         self.url_provider_factory = url_provider_factory
         self.scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
 
@@ -44,7 +43,6 @@ class TgeExtractor(Extractor):
     def __get_url_provider(self) -> Callable:
         url_provider = self.url_provider_factory.get_url_provider(
             url_base=TgeExtractor._TGE_REQUEST_URL_BASE,
-            # endpoint=self.data_access_endpoint,
             parameter_name='dateShow'
         )
         return url_provider
@@ -55,3 +53,16 @@ class TgeExtractor(Extractor):
         last_available_data_snapshot_date = \
             today - relativedelta(months=TgeExtractor._RETENTION_HORIZON_MONTHS) + relativedelta(days=1)
         return date >= last_available_data_snapshot_date
+
+
+if __name__ == '__main__':
+    start_date = dt.datetime(2023, 1, 1)
+    end_date = dt.datetime(2023, 1, 3)
+    url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint='energia-elektryczna-rdn')
+    extractor = TgeExtractor(start_date=start_date, end_date=end_date, url_provider_factory=url_provider_factory)
+    scrapper = extractor.scrapper
+    extracted_data = extractor.extract()
+
+    for date in pd.date_range(start_date, end_date):
+        df = extracted_data.get(date)
+        df.to_csv(f'energia-elektryczna-rdn_{date.strftime("%Y%m%d")}.csv')
