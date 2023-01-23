@@ -59,6 +59,8 @@ if __name__ == '__main__':
     start_date = dt.datetime(2023, 1, 1)
     end_date = dt.datetime(2023, 1, 3)
     url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint='energia-elektryczna-rdn')
+    url_provider = url_provider_factory.get_url_provider(TgeExtractor._TGE_REQUEST_URL_BASE, 'dateShow')
+    urls = [url_provider(date) for date in pd.date_range(start_date, end_date)]
     extractor = TgeExtractor(start_date=start_date, end_date=end_date, url_provider_factory=url_provider_factory)
     scrapper = extractor.scrapper
     extracted_data = extractor.extract()
@@ -66,3 +68,8 @@ if __name__ == '__main__':
     for date in pd.date_range(start_date, end_date):
         df = extracted_data.get(date)
         df.to_csv(f'energia-elektryczna-rdn_{date.strftime("%Y%m%d")}.csv')
+
+    for date, html in zip(pd.date_range(start_date, end_date), htmls):
+        text_file = open(f'energia-elektryczna-rdn_{date.strftime("%Y%m%d")}.html', 'w')
+        text_file.write(str(html))
+        text_file.close()
