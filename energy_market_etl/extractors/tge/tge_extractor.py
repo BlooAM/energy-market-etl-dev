@@ -18,8 +18,8 @@ class TgeExtractor(Extractor):
         self.start_date = start_date
         self.end_date = end_date
         self.data_access_endpoint = data_access_endpoint
-        self.__url_provider_factory = UrlProviderFactory(url_type='parametrized')
-        self.__scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
+        self.url_provider_factory = UrlProviderFactory(url_type='parametrized')
+        self.scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
@@ -29,7 +29,7 @@ class TgeExtractor(Extractor):
             if TgeExtractor.is_data_available(date=date):
                 url = url_provider(date=date)
                 try:
-                    data_snapshots[date] = self.__scrapper.scrape(url=url)
+                    data_snapshots[date] = self.scrapper.scrape(url=url)
                 except TableNotFoundError as e:
                     logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
                     continue
@@ -42,7 +42,7 @@ class TgeExtractor(Extractor):
         return data_snapshots
 
     def __get_url_provider(self) -> Callable:
-        url_provider = self.__url_provider_factory.get_url_provider(
+        url_provider = self.url_provider_factory.get_url_provider(
             url_base=TgeExtractor._TGE_REQUEST_URL_BASE,
             endpoint=self.data_access_endpoint,
             parameter_name='dateShow'

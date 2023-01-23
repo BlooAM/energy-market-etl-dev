@@ -20,7 +20,7 @@ class PseExtractor(Extractor):
         self.start_date = start_date
         self.end_date = end_date
         self.data_access_endpoint = data_access_endpoint
-        self.__url_provider_factory = UrlProviderFactory(url_type='endpoint')
+        self.url_provider_factory = UrlProviderFactory(url_type='endpoint')
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
@@ -48,7 +48,7 @@ class PseExtractor(Extractor):
         return data_snapshot
 
     def __get_url_provider(self) -> Callable:
-        url_provider = self.__url_provider_factory.get_url_provider(
+        url_provider = self.url_provider_factory.get_url_provider(
             url_base=PseExtractor._PSE_CSV_URL_BASE,
             endpoint=self.data_access_endpoint,
         )
