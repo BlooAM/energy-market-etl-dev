@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pandas as pd
+import pytest
 
 from energy_market_etl.extractors.pse.pse_extractor import PseExtractor
 from tests.unit.energy_market_etl.resources_path_getter import get_resources_path
@@ -12,11 +13,8 @@ def get_extractor_resource_path(endpoint: str, date: dt.datetime) -> Path:
     return get_resources_path() / 'extractors' / 'pse' / f'{endpoint}_{date.strftime("%Y%m%d")}.csv'
 
 
-def test_units_extract():
-    start_date = dt.datetime(2023, 1, 1)
-    end_date = dt.datetime(2023, 1, 3)
-
-    endpoint = 'PL_GEN_MOC_JW_EPS'
+@pytest.mark.parametrize("endpoint", ['PL_GEN_MOC_JW_EPS', 'PL_WYK_KSE'])
+def test_units_extract(start_date: dt.datetime, end_date: dt.datetime, endpoint: str):
     mocked_url_factory_provider = MagicMock()
     mocked_url_factory_provider.get_url_provider.return_value = \
         lambda date: get_extractor_resource_path(date=date, endpoint=endpoint)
@@ -34,4 +32,6 @@ def test_units_extract():
     }
     result = extractor.extract()
 
-
+    for date in date_range:
+        assert isinstance(result.get(date), pd.DataFrame)
+        assert set(expected.get(date).columns) == set(result.get(date).columns)
