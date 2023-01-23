@@ -25,11 +25,7 @@ class MarketDataEtl(Etl):
             end_date: dt.datetime,
             report_type: str,
     ) -> None:
-        self.start_date = start_date
-        self.end_date = end_date
-        self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
-        self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
-        self.__transformed_data: pd.DataFrame = pd.DataFrame()
+        super().__init__(start_date=start_date, end_date=end_date, report_type=report_type)
         self.data_access_endpoint = MarketDataEtl.ETL_METADATA.get(report_type)
         if not self.data_access_endpoint:
             raise NotImplementedError('')  # TODO: exception handling + log here
