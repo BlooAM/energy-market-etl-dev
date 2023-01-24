@@ -12,4 +12,8 @@ class NumericCastTransformer(Transformer):
 
     def transform(self, raw_data_snapshots: Dict[dt.datetime, pd.DataFrame]) -> \
             Union[Dict[dt.datetime, pd.DataFrame], pd.DataFrame]:
-        pass
+        data_snapshots = {}
+        for datetime, raw_data_snapshots in raw_data_snapshots.items():
+            pass
+
+        return data_snapshots

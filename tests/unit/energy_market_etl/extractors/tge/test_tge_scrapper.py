@@ -1,7 +1,8 @@
 import datetime as dt
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
+from bs4 import BeautifulSoup
 import pandas as pd
 import pytest
 
@@ -9,35 +10,26 @@ from energy_market_etl.extractors.tge.tge_extractor import TgeScrapper
 from tests.unit.energy_market_etl.resources_path_getter import get_resources_path
 
 
-def get_scrapper_resource_path(endpoint: str, date: dt.datetime) -> Path:
-    return get_resources_path() / 'extractors' / 'tge' / f'{endpoint}_{date.strftime("%Y%m%d")}.html'
+def get_scrapper_resource_path(endpoint: str, date: dt.datetime, extension: str) -> Path:
+    return get_resources_path() / 'extractors' / 'tge' / f'{endpoint}_{date.strftime("%Y%m%d")}.{extension}'
 
 
 @pytest.mark.parametrize("endpoint", ['energia-elektryczna-rdn'])
-def test_units_extract(start_date: dt.datetime, end_date: dt.datetime, endpoint: str):
-    mocked_url_factory_provider = MagicMock()
-    mocked_url_factory_provider.get_url_provider.return_value = \
-        lambda date: get_scrapper_resource_path(date=date, endpoint=endpoint)
-    extractor = TgeScrapper(
-        start_date=start_date,
-        end_date=end_date,
-        url_provider_factory=mocked_url_factory_provider
-    )
+def test_units_extract(start_date: dt.datetime, endpoint: str):
+    scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe')
 
-    date_range = pd.date_range(start_date, end_date)
-    resource_paths = [get_extractor_resource_path(endpoint, date) for date in date_range]
-    expected = {
-        date: pd.read_csv(path, encoding='cp1250', sep=';')
-        for date, path in zip(date_range, resource_paths)
-    }
-    result = extractor.extract()
+    url = get_scrapper_resource_path(endpoint=endpoint, date=start_date, extension='html')
+    with open(url) as resource_reference:
+        html_parser = BeautifulSoup(resource_reference, 'html.parser')
 
-    for date in date_range:
-        assert isinstance(result.get(date), pd.DataFrame)
-        assert set(expected.get(date).columns) == set(result.get(date).columns)
+    with patch('energy_market_etl.extractors.tge.tge_scrapper.TgeScrapper.get_html_parser') as mock:
+        mock.return_value = html_parser
+        result = scrapper.scrape(url=url)
 
-
-
-
-# with open("energia-elektryczna-rdn_20230101.html") as fp:
-#     soup = BeautifulSoup(fp, 'html.parser')
+    resource_path = get_scrapper_resource_path(endpoint=endpoint, date=start_date, extension='csv')
+    expected = pd.read_csv(resource_path, encoding='cp1250', sep=';')
+    print(expected.columns)
+    print(result.columns)
+    result.to_csv('temp.csv', encoding='cp1250', sep=';')
+    assert isinstance(result, pd.DataFrame)
+    assert set(expected.columns[1:]) == set(result.columns[1:])

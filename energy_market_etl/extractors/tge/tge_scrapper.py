@@ -39,7 +39,7 @@ class TgeScrapper:
         self.table_id = table_id
 
     def scrape(self, url: str) -> pd.DataFrame:
-        html_parser = self.__get_html_parser(url=url)
+        html_parser = self.get_html_parser(url=url)
         tables = html_parser.findAll('table', {'id': self.table_id})
         if len(tables) != 1:
             raise TableNotFoundError(
@@ -55,7 +55,7 @@ class TgeScrapper:
             return data_snapshot
 
     @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
-    def __get_html_parser(self, url: str) -> BeautifulSoup:
+    def get_html_parser(self, url: str) -> BeautifulSoup:
         html = urlopen(url) #TODO: catch exceptions HTTPError, UrlError
         html_parser = BeautifulSoup(html.read(), 'html.parser')
         return html_parser
