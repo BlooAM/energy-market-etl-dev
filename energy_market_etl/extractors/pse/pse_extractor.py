@@ -19,7 +19,6 @@ class PseExtractor(Extractor):
     def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
         self.start_date = start_date
         self.end_date = end_date
-        # self.data_access_endpoint = data_access_endpoint
         self.url_provider_factory = url_provider_factory
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
@@ -50,17 +49,29 @@ class PseExtractor(Extractor):
     def __get_url_provider(self) -> Callable:
         url_provider = self.url_provider_factory.get_url_provider(
             url_base=PseExtractor._PSE_CSV_URL_BASE,
-            # endpoint=self.data_access_endpoint,
         )
         return url_provider
 
 
 if __name__ == '__main__':
-    period_start_date = dt.datetime(2023, 1, 1)
-    period_end_date = dt.datetime(2023, 1, 5)
-    url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint='PL_WYK_KSE/data')
+    period_start_date = dt.datetime(2022, 10, 29)
+    period_end_date = dt.datetime(2022, 10, 30)
+
+    url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_WYK_KSE/data')
     extractor = PseExtractor(
         start_date=period_start_date,
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
+    data_system = extractor.extract()
+
+    url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_GEN_MOC_JW_EPS/data')
+    extractor = PseExtractor(
+        start_date=period_start_date,
+        end_date=period_end_date,
+        url_provider_factory=url_provider_factory,
+    )
+    data_units = extractor.extract()
+
+    df1 = data_system[period_end_date]
+    df2 = data_units[period_end_date]
