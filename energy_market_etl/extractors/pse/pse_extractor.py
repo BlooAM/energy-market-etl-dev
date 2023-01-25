@@ -64,8 +64,8 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    system_march_data = extractor.extract()
-    system_march = system_march_data[period_end_date]
+    _system_march = extractor.extract()
+    system_march = _system_march[period_end_date]
 
     url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_GEN_MOC_JW_EPS/data')
     extractor = PseExtractor(
@@ -73,8 +73,8 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    units_march_data = extractor.extract()
-    units_march = units_march_data[period_end_date]
+    _units_march = extractor.extract()
+    units_march = _units_march[period_end_date]
 
 
 
@@ -87,8 +87,8 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    system_october_data = extractor.extract()
-    system_october = system_october_data[period_end_date]
+    _system_october = extractor.extract()
+    system_october = _system_october[period_end_date]
 
     url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_GEN_MOC_JW_EPS/data')
     extractor = PseExtractor(
@@ -96,5 +96,5 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    units_october_data = extractor.extract()
-    units_october = units_october_data[period_end_date]
+    _units_october = extractor.extract()
+    units_october = _units_october[period_end_date]
