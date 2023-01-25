@@ -74,13 +74,22 @@ if __name__ == '__main__':
     )
     data_units = extractor.extract()
 
+
     df1 = data_system[period_end_date]
-    rows_to_merge = df1[df1['Godzina'].isin(['2', '2A'])]
-    numeric_columns = [column for column in rows_to_merge.columns if rows_to_merge[column].dtype in ('int64', 'float64')]
-    aggregated_values = list(rows_to_merge[numeric_columns].mean(axis=0))
-    df1.loc[df1['Godzina'] == '2', numeric_columns] = aggregated_values
-    df1 = df1.drop(df1.query('Godzina == "2A"').index)
+    df1_t = df1.drop('Data', axis=1).set_index('Godzina').T
+
+    df1_t['2'] = df1_t[['2', '2A']].apply('mean', axis=1)
+    df1_t = df1_t.drop('2A', axis=1)
+
+    df1_t = df1_t.T.reset_index()
+    df1_t.insert(0, "Data", df1['Data'])
+
+
 
     df2 = data_units[period_end_date]
-    df2['2'] = df2[['2', '2A']].mean(axis=1)
-    df2 = df2.drop('2A', axis=1)
+    aggregate_function = 'mean'
+    base_column = '2'
+    time_shif_column = '2A'
+
+    df2[base_column] = df2[[base_column, time_shif_column]].apply(f'{aggregate_function}', axis=1)
+    df2 = df2.drop(time_shif_column, axis=1)
