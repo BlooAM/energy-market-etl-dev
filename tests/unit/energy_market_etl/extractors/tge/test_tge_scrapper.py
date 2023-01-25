@@ -15,7 +15,7 @@ def get_scrapper_resource_path(endpoint: str, date: dt.datetime, extension: str)
 
 
 @pytest.mark.parametrize("endpoint", ['energia-elektryczna-rdn'])
-def test_units_extract(start_date: dt.datetime, endpoint: str):
+def test_extract(start_date: dt.datetime, endpoint: str):
     scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe')
 
     url = get_scrapper_resource_path(endpoint=endpoint, date=start_date, extension='html')

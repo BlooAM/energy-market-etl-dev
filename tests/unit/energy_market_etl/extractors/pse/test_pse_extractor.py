@@ -14,7 +14,7 @@ def get_extractor_resource_path(endpoint: str, date: dt.datetime) -> Path:
 
 
 @pytest.mark.parametrize("endpoint", ['PL_GEN_MOC_JW_EPS', 'PL_WYK_KSE'])
-def test_units_extract(start_date: dt.datetime, end_date: dt.datetime, endpoint: str):
+def test_extract(start_date: dt.datetime, end_date: dt.datetime, endpoint: str):
     mocked_url_factory_provider = MagicMock()
     mocked_url_factory_provider.get_url_provider.return_value = \
         lambda date: get_extractor_resource_path(date=date, endpoint=endpoint)
