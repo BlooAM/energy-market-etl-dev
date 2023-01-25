@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 from typing import Callable, Dict
 from urllib.error import URLError, HTTPError
 
@@ -26,6 +27,7 @@ class PseExtractor(Extractor):
 
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
+            logging.debug(f'Extracting PSE data for date: {date.date()}')
             try:
                 url = url_provider(date)
                 data_snapshots[date] = self.__get_data_snapshot(url)

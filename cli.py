@@ -31,11 +31,20 @@ def main():
         help="Last data snapshot date (YYYY-MM-DD format)",
         required=True
     )
+    parser.add_argument(
+        "-vb", "--verbose",
+        type=int,
+        help="Verbose parameter - higher value indicates more detailed log information",
+        required=False,
+        default=0,
+        choices=[0, 1]
+    )
     args = parser.parse_args()
 
+    log_level = 'DEBUG' if args.verbose>0 else 'INFO'
     coloredlogs.install(
         fmt='%(asctime)s - %(levelname)s - %(message)s',
-        level='INFO',
+        level=log_level,
         datefmt='%Y-%m-%d %H:%M:%S',
     )
     etl_executor = EtlExecutor(

@@ -20,15 +20,18 @@ $ python cli.py --help
 This will output to your shell the following documentation.
 
 ```text
+usage: cli.py [-h] -rt {market_data,system_data,system_units_data} -sd START_DATE -ed END_DATE [-vb {0,1}]
+
 Generate report regarding energy sector data
 
 options:
   -h, --help            show this help message and exit
-  -rt {system_units_data,system_data,market_data}, --report-type {system_units_data,system_data,market_data}
+  -rt {market_data,system_data,system_units_data}, --report-type {market_data,system_data,system_units_data}
                         Report type
   -sd START_DATE, --start-date START_DATE
                         First data snapshot date (YYYY-MM-DD format)
   -ed END_DATE, --end-date END_DATE
                         Last data snapshot date (YYYY-MM-DD format)
-
+  -vb {0,1}, --verbose {0,1}
+                        Verbose parameter - higher value indicates more detailed log information
 ```

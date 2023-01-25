@@ -25,6 +25,7 @@ class TgeExtractor(Extractor):
 
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
+            logging.debug(f'Extracting TGE data for date: {date.date()}')
             if TgeExtractor.is_data_available(date=date):
                 url = url_provider(date=date)
                 try:
