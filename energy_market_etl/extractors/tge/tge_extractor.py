@@ -36,7 +36,7 @@ class TgeExtractor(Extractor):
                     logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
                     continue
             else:
-                logging.warning(f'TGE data not available for date: {date} due to retention policy')
+                logging.warning(f'TGE data not available for date: {date.date()} due to retention policy')
 
         return data_snapshots
 

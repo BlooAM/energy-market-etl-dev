@@ -28,8 +28,5 @@ def test_units_extract(start_date: dt.datetime, endpoint: str):
 
     resource_path = get_scrapper_resource_path(endpoint=endpoint, date=start_date, extension='csv')
     expected = pd.read_csv(resource_path, encoding='cp1250', sep=';')
-    print(expected.columns)
-    print(result.columns)
-    result.to_csv('temp.csv', encoding='cp1250', sep=';')
     assert isinstance(result, pd.DataFrame)
     assert set(expected.columns[1:]) == set(result.columns[1:])
