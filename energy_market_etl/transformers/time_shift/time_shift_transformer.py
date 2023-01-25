@@ -22,14 +22,18 @@ class TimeShiftTransformer(Transformer):
             current_year = datetime.year
 
             if current_date == get_march_switch(year=current_year).date():
-                logging.info("")
+                logging.info(
+                    f'March time shift detected on date: {current_date}. Missing information being interpolated...'
+                )
                 data_snapshots[datetime] = self.__handle_time_shift(
                     raw_data_snapshot=raw_data_snapshot,
                     input_columns=['1', '3'],
                     output_column='2',
                 )
             elif current_date == get_october_switch(year=current_year).date():
-                logging.info("")
+                logging.info(
+                    f'October time shift detected on date: {current_date}. Additional information being aggregated...'
+                )
                 data_snapshots[datetime] = self.__handle_time_shift(
                     raw_data_snapshot=raw_data_snapshot,
                     input_columns=['2', '2A'],

@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import Dict
+from typing import Dict, List
 
 from energy_market_etl.utils.class_metadata_utils import class_names
 from energy_market_etl.utils.url_utils import UrlProviderFactory
@@ -7,6 +7,7 @@ from energy_market_etl.extractors.extractor import Extractor
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.extractors.pse.pse_extractor import PseExtractor
+from energy_market_etl.transformers.time_shift.time_shift_transformer import TimeShiftTransformer
 from energy_market_etl.transformers.stack.stack_transformer import StackTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.etls.etl import Etl
@@ -37,9 +38,13 @@ class SystemDataEtl(Etl):
         self.__extracted_data = extract_layer.extract()
 
     def transform(self) -> None:
-        transform_layer: Transformer = StackTransformer(stack_dimension='vertical')
+        transform_layer: List[Transformer] = [
+            TimeShiftTransformer(aggregate_function='mean'),
+            StackTransformer(stack_dimension='vertical'),
+        ]
         self.__transformed_data = self.__extracted_data.copy()
-        self.__transformed_data = transform_layer.transform(self.__transformed_data)
+        for transformer in transform_layer:
+            self.__transformed_data = transformer.transform(self.__transformed_data)
 
     def load(self) -> None:
         load_layer: Loader = CsvLoader(file_name=self.report_name)
