@@ -1,5 +1,4 @@
-import datetime as dt
-from typing import Dict, Iterable, Union
+from typing import Iterable
 
 import pandas as pd
 
@@ -13,6 +12,7 @@ class SortTransformer(Transformer):
     def transform(self, data_snapshots: pd.DataFrame) -> pd.DataFrame:
         if set(self.sort_by_columns) <= set(data_snapshots.columns):
             data_snapshots_sorted = data_snapshots.sort_values(by=self.sort_by_columns)
+            return data_snapshots_sorted
         else:
             raise AttributeError(f'Sort order columns: {self.sort_by_columns} do not match with transformer '
                                  f'data columns')
