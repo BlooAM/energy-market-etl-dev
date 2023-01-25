@@ -55,6 +55,29 @@ class PseExtractor(Extractor):
 
 
 if __name__ == '__main__':
+    period_start_date = dt.datetime(2022, 3, 26)
+    period_end_date = dt.datetime(2022, 3, 27)
+
+    url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_WYK_KSE/data')
+    extractor = PseExtractor(
+        start_date=period_start_date,
+        end_date=period_end_date,
+        url_provider_factory=url_provider_factory,
+    )
+    system_march_data = extractor.extract()
+    system_march = system_march_data[period_end_date]
+
+    url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_GEN_MOC_JW_EPS/data')
+    extractor = PseExtractor(
+        start_date=period_start_date,
+        end_date=period_end_date,
+        url_provider_factory=url_provider_factory,
+    )
+    units_march_data = extractor.extract()
+    units_march = units_march_data[period_end_date]
+
+
+
     period_start_date = dt.datetime(2022, 10, 29)
     period_end_date = dt.datetime(2022, 10, 30)
 
@@ -64,7 +87,8 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    data_system = extractor.extract()
+    system_october_data = extractor.extract()
+    system_october = system_october_data[period_end_date]
 
     url_provider_factory = UrlProviderFactory(url_type='endpoint', endpoint='PL_GEN_MOC_JW_EPS/data')
     extractor = PseExtractor(
@@ -72,24 +96,5 @@ if __name__ == '__main__':
         end_date=period_end_date,
         url_provider_factory=url_provider_factory,
     )
-    data_units = extractor.extract()
-
-
-    df1 = data_system[period_end_date]
-    df1_t = df1.drop('Data', axis=1).set_index('Godzina').T
-
-    df1_t['2'] = df1_t[['2', '2A']].apply('mean', axis=1)
-    df1_t = df1_t.drop('2A', axis=1)
-
-    df1_t = df1_t.T.reset_index()
-    df1_t.insert(0, "Data", df1['Data'])
-
-
-
-    df2 = data_units[period_end_date]
-    aggregate_function = 'mean'
-    base_column = '2'
-    time_shif_column = '2A'
-
-    df2[base_column] = df2[[base_column, time_shif_column]].apply(f'{aggregate_function}', axis=1)
-    df2 = df2.drop(time_shif_column, axis=1)
+    units_october_data = extractor.extract()
+    units_october = units_october_data[period_end_date]
