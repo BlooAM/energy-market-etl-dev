@@ -7,7 +7,7 @@ import pandas as pd
 from energy_market_etl.transformers.transformer import Transformer
 from energy_market_etl.utils.date_utils import get_march_switch, get_october_switch
 
-import pdb
+
 class TimeShiftTransformer(Transformer):
     _GROUP_COLUMNS = ['Doba', 'Data']
     _INDEX_COLUMNS = ['Godzina']
