@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from typing import Callable, Dict, Iterable, List, Tuple, Union
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -74,7 +74,7 @@ class TimeShiftTransformer(Transformer):
         return data_snapshot
 
     @staticmethod
-    def __get_index_group_column(columns: Iterable[str]) -> Tuple[str, str]:
+    def __get_index_group_column(columns: Iterable[str]) -> Tuple[Optional[str], Optional[str]]:
         index_column, group_column = None, None
         for column in columns:
             if column in TimeShiftTransformer._INDEX_COLUMNS:

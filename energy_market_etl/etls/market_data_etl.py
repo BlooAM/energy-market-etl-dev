@@ -25,7 +25,7 @@ class MarketDataEtl(Etl):
             report_type: str,
     ) -> None:
         super().__init__(start_date=start_date, end_date=end_date, report_type=report_type)
-        endpoint = MarketDataEtl.ETL_METADATA.get(report_type)
+        endpoint = MarketDataEtl.ETL_METADATA.get(report_type, '')
         self.url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint=endpoint)
 
     def extract(self) -> None:

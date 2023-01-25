@@ -17,7 +17,7 @@ class UrlProviderFactory:
         year, month, day = extract_date_components(date)
         return f'{url_base}/{self.endpoint}?{parameter_name}={day:02d}-{month:02d}-{year}'
 
-    def get_url_provider(self, url_base: str, parameter_name: Optional[str] = '') -> Callable:
+    def get_url_provider(self, url_base: str, parameter_name: str = '') -> Callable:
         if self.url_type == 'endpoint':
             return lambda date: self._endpoint_url_provider(date=date, url_base=url_base)
         elif self.url_type == 'parametrized':

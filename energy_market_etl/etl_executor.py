@@ -86,7 +86,7 @@ class EtlExecutor(pydantic.BaseModel):
         etl.load()
         logger.info('Data loading ended\n')
 
-        return etl #TODO: remove this line after tests
+        return etl
 
     def __get_etl(self) -> Etl:
         for EtlClass in get_etls():
@@ -96,3 +96,4 @@ class EtlExecutor(pydantic.BaseModel):
                     end_date=self.end_date,
                     report_type=self.report_type,
                 )
+        raise NotImplementedError('') #TODO: add message here
