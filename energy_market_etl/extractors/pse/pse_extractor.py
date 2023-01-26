@@ -1,6 +1,5 @@
 import datetime as dt
 import logging
-import time
 from typing import Callable, Dict
 from urllib.error import URLError, HTTPError
 
@@ -41,7 +40,7 @@ class PseExtractor(Extractor):
 
         return data_snapshots
 
-    @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
+    @retry((HTTPError, URLError), delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
     def __get_data_snapshot(self, url: str) -> pd.DataFrame:
         data_snapshot: pd.DataFrame = pd.read_csv(
             filepath_or_buffer=url,

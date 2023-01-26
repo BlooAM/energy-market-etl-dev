@@ -111,33 +111,3 @@ class TgeScrapper:
 
         parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)]
         return parsed_rows
-
-
-if __name__ == '__main__':
-    import requests
-
-    @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
-    def get_html_parser(url: str) -> BeautifulSoup:
-        print('Trying to fetch URL')
-        try:
-            response = requests.get(url)
-            # html = urlopen(url)
-            # print('Trying to parse URL')
-            # resp = html.read()
-            print('Trying to create parser')
-            html_parser = BeautifulSoup(response.text, "html.parser")
-        except HTTPError as e:
-            print(f'HTTP Error has occured while scrapping with the following message: {e}')
-        except URLError as e:
-            print(f'URL Error has occured while scrapping with the following message: {e}')
-        return html_parser
-
-    html_parsers = []
-    for date in pd.date_range(start_date, end_date):
-        if date >= dt.datetime(2023, 10, 1):
-            day, month, year = date.day, date.month, date.year
-            print(f'Extracting data for date: {date.date()}')
-            url = f'https://tge.pl/energia-elektryczna-rdn?dateShow={day:02d}-{month:02d}-{year}'
-            html_parsers.append(get_html_parser(url))
-        else:
-            continue
