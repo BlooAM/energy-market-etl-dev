@@ -44,6 +44,7 @@ class TgeScrapper:
             html_parser = self.get_html_parser(url=url)
         except RequestException as e:
             logging.warning(f'Exception has occured while scrapping with the following message: {e}')
+            return pd.DataFrame()
 
         tables = html_parser.findAll('table', {'id': self.table_id})
         if len(tables) != 1:

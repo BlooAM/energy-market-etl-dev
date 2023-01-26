@@ -45,7 +45,7 @@ class EtlExecutor(pydantic.BaseModel):
         if value > _TODAY:
             raise FutureDateError(
                 date=value,
-                message=f"given `end_date`={value} cannot be later than the current date"
+                message=f"`end_date`={value.date()} cannot be later than the current date({dt.datetime.today().date()})"
             )
         return value
 
@@ -55,7 +55,7 @@ class EtlExecutor(pydantic.BaseModel):
         if value not in get_etl_keys():
             raise ReportTypeNotImplementedError(
                 report_type=value,
-                message=f"given `report_type`={value} is not implemented"
+                message=f"`report_type`={value} is not implemented"
             )
         return value
 
@@ -96,4 +96,4 @@ class EtlExecutor(pydantic.BaseModel):
                     end_date=self.end_date,
                     report_type=self.report_type,
                 )
-        raise NotImplementedError('') #TODO: add message here
+        raise NotImplementedError(f'`report_type`={self.report_type} not implement')

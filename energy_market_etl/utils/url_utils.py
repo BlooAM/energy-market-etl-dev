@@ -27,4 +27,4 @@ class UrlProviderFactory:
                 parameter_name=parameter_name,
             )
         else:
-            raise NotImplementedError('') #TODO: error message here
+            raise NotImplementedError(f'Not recognized pattern for `url_type`={self.url_type}')
