@@ -3,7 +3,6 @@ import logging
 import time
 from typing import Callable, Dict
 from urllib.error import URLError, HTTPError
-from urllib.error import E
 
 import pandas as pd
 from retry import retry
