@@ -1,7 +1,7 @@
 import datetime as dt
 import logging
 from typing import Callable, Dict
-from urllib.error import URLError, HTTPError
+from requests.exceptions import HTTPError, Timeout, RequestException
 
 import pandas as pd
 from retry import retry
@@ -31,16 +31,18 @@ class PseExtractor(Extractor):
             try:
                 url = url_provider(date)
                 data_snapshots[date] = self.__get_data_snapshot(url)
-            except HTTPError as e:
-                logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
-            except URLError as e:
+            except RequestException as e:
                 logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
             except Exception as e:
                 logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
 
         return data_snapshots
 
-    @retry((HTTPError, URLError), delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
+    @retry(
+        exceptions=(HTTPError, Timeout),
+        delay=_HTTP_REQUEST_RETRY_DELAY_TIME,
+        tries=_HTTP_REQUEST_RETRY_ATTEMPTS
+    )
     def __get_data_snapshot(self, url: str) -> pd.DataFrame:
         data_snapshot: pd.DataFrame = pd.read_csv(
             filepath_or_buffer=url,

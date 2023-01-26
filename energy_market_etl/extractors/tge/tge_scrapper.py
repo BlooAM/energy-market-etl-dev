@@ -1,9 +1,9 @@
 from http.client import IncompleteRead
 from itertools import chain, repeat
 import logging
+import requests
+from requests.exceptions import HTTPError, Timeout, RequestException
 from typing import List, Union
-from urllib.request import urlopen
-from urllib.error import HTTPError, URLError
 
 
 import bs4
@@ -42,8 +42,8 @@ class TgeScrapper:
     def scrape(self, url: str) -> pd.DataFrame:
         try:
             html_parser = self.get_html_parser(url=url)
-        except Exception as e:
-            logging.warning(f'Error has occured while scrapping with the following message: {e}')
+        except RequestException as e:
+            logging.warning(f'Exception has occured while scrapping with the following message: {e}')
 
         tables = html_parser.findAll('table', {'id': self.table_id})
         if len(tables) != 1:
@@ -59,16 +59,14 @@ class TgeScrapper:
             data_snapshot = pd.DataFrame(data, columns=table_head_data)
             return data_snapshot
 
-    @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
+    @retry(
+        exceptions=(IncompleteRead, HTTPError, Timeout),
+        delay=_HTTP_REQUEST_RETRY_DELAY_TIME,
+        tries=_HTTP_REQUEST_RETRY_ATTEMPTS,
+    )
     def get_html_parser(self, url: str) -> BeautifulSoup:
-        try:
-            html = urlopen(url)
-        except HTTPError as e:
-            logging.warning(f'HTTP Error has occured while scrapping with the following message: {e}')
-        except URLError as e:
-            logging.warning(f'URL Error has occured while scrapping with the following message: {e}')
-
-        html_parser = BeautifulSoup(html.read(), 'html.parser')
+        response = requests.get(url)
+        html_parser = BeautifulSoup(response.text, "html.parser")
         return html_parser
 
     @staticmethod

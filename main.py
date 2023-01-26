@@ -12,7 +12,7 @@ if __name__ == '__main__':
     )
 
     start_date = dt.datetime(2022, 10, 1)
-    end_date = dt.datetime(2023, 1, 15)
+    end_date = dt.datetime(2023, 1, 20)
 
     etl_executor = EtlExecutor(
         start_date=start_date,
