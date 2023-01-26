@@ -1,8 +1,8 @@
 import datetime as dt
 import logging
 from typing import Callable, Dict
-from requests.exceptions import Timeout, RequestException
-from urllib.error import HTTPError
+from requests.exceptions import RequestException
+from urllib.error import HTTPError, URLError
 
 import pandas as pd
 from retry import retry
@@ -40,7 +40,7 @@ class PseExtractor(Extractor):
         return data_snapshots
 
     @retry(
-        exceptions=(HTTPError, Timeout),
+        exceptions=(HTTPError, URLError, RequestException),
         delay=_HTTP_REQUEST_RETRY_DELAY_TIME,
         tries=_HTTP_REQUEST_RETRY_ATTEMPTS
     )
