@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import time
 from typing import Callable, Dict
 
 from dateutil.relativedelta import relativedelta
@@ -27,6 +28,7 @@ class TgeExtractor(Extractor):
         for date in pd.date_range(self.start_date, self.end_date):
             logging.debug(f'Extracting TGE data for date: {date.date()}')
             if TgeExtractor.is_data_available(date=date):
+                time.sleep(15)
                 url = url_provider(date=date)
                 try:
                     data_snapshots[date] = self.scrapper.scrape(url=url)
@@ -35,6 +37,10 @@ class TgeExtractor(Extractor):
                     continue
                 except InvalidTableStructure as e:
                     logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
+                    continue
+                except Exception as e:
+                    logging.warning(f'Exception has occured with the following message: {e}. '
+                                    f'Omitting extraction for date: {date.date()}')
                     continue
             else:
                 logging.warning(f'TGE data not available for date: {date.date()} due to retention policy')
