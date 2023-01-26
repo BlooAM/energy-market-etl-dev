@@ -1,7 +1,8 @@
 import datetime as dt
 import logging
 from typing import Callable, Dict
-from requests.exceptions import HTTPError, Timeout, RequestException
+from requests.exceptions import Timeout, RequestException
+from urllib.error import HTTPError
 
 import pandas as pd
 from retry import retry
