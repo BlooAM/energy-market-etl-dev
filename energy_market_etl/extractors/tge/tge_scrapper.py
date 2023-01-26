@@ -62,7 +62,7 @@ class TgeScrapper:
     @retry(IncompleteRead, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
     def get_html_parser(self, url: str) -> BeautifulSoup:
         try:
-            html = urlopen(url) #TODO: catch exceptions HTTPError, UrlError
+            html = urlopen(url)
         except HTTPError as e:
             logging.warning(f'HTTP Error has occured while scrapping with the following message: {e}')
         except URLError as e:

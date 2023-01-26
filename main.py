@@ -19,4 +19,4 @@ if __name__ == '__main__':
         end_date=end_date,
         report_type='market_data',
     )
-    etl = etl_executor.execute()
+    # etl = etl_executor.execute()

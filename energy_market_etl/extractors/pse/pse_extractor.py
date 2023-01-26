@@ -3,6 +3,7 @@ import logging
 import time
 from typing import Callable, Dict
 from urllib.error import URLError, HTTPError
+from urllib.error import E
 
 import pandas as pd
 from retry import retry
@@ -29,16 +30,16 @@ class PseExtractor(Extractor):
         data_snapshots = {}
         for date in pd.date_range(self.start_date, self.end_date):
             logging.debug(f'Extracting PSE data for date: {date.date()}')
-            time.sleep(15)
             try:
                 url = url_provider(date)
                 data_snapshots[date] = self.__get_data_snapshot(url)
             except HTTPError as e:
-                print(e)  # TODO: raise custom error
-                return {}
+                logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
             except URLError as e:
-                print(e)  # TODO: raise custom error
-                return {}
+                logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
+            except Exception as e:
+                logging.warning(f'{e}. Omitting extraction for date: {date.date()}')
+
         return data_snapshots
 
     @retry(HTTPError, delay=_HTTP_REQUEST_RETRY_DELAY_TIME, tries=_HTTP_REQUEST_RETRY_ATTEMPTS)
