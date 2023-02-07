@@ -14,7 +14,10 @@ class Etl(ABC):
     ) -> None:
         self.start_date = start_date
         self.end_date = end_date
-        self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
+        if self.start_date == self.end_date:
+            self.report_name = f'{report_type}_{start_date.date()}'
+        else:
+            self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
         self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
 
