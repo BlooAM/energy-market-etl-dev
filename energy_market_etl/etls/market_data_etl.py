@@ -16,7 +16,8 @@ from energy_market_etl.etls.etl import Etl
 
 class MarketDataEtl(Etl):
     ETL_METADATA: Dict[str, str] = {
-        'market_data': 'energia-elektryczna-rdn',
+        'tge_rdn_hourly_data': 'energia-elektryczna-rdn',
+        'tge_rdn_index_data': 'energia-elektryczna-rdn',
     }
 
     def __init__(

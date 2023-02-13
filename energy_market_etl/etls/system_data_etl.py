@@ -16,8 +16,8 @@ from energy_market_etl.etls.etl import Etl
 
 class SystemDataEtl(Etl):
     ETL_METADATA: Dict[str, str] = {
-        'system_data': 'PL_WYK_KSE/data',
-        'system_units_data': 'PL_GEN_MOC_JW_EPS/data',
+        'pse_data': 'PL_WYK_KSE/data',
+        'pse_units_data': 'PL_GEN_MOC_JW_EPS/data',
     }
 
     def __init__(
