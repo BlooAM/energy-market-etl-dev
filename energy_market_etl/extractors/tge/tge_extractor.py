@@ -13,6 +13,7 @@ from energy_market_etl.utils.url_utils import UrlProviderFactory
 class TgeExtractor(Extractor):
     _TGE_REQUEST_URL_BASE = 'https://tge.pl'
     _RETENTION_HORIZON_MONTHS = 2
+    _TABLE_IDS = {}
 
     def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
         self.start_date = start_date
