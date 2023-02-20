@@ -36,8 +36,8 @@ class InvalidTableStructure(Exception):
 
 
 class TgeScrapper:
-    def __init__(self, table_id: str) -> None:
-        self.table_id = table_id
+    def __init__(self, table_ids: str) -> None:
+        self.table_ids = table_ids
 
     def scrape(self, url: str) -> pd.DataFrame:
         try:
@@ -46,19 +46,37 @@ class TgeScrapper:
             logging.warning(f'Exception has occured while scrapping with the following message: {e}')
             return pd.DataFrame()
 
-        tables = html_parser.findAll('table', {'id': self.table_id})
-        if len(tables) != 1:
-            raise TableNotFoundError(
-                message=f'Table with id {self.table_id} does not exist'
-            )
+        if len(self.table_ids) == 1:
+            table_id = self.table_ids[0]
+            # TgeScrapper._parse_hourly_data_table(html_parser=html_parser, table_id=table_id)
+            tables = html_parser.findAll('table', {'id': table_id})
+            if len(tables) != 1:
+                raise TableNotFoundError(
+                    message=f'Table with id {table_id} does not exist'
+                )
+            else:
+                table = tables[0]
+                table_head_data = TgeScrapper._parse_table_metadata(table.thead)
+                table_body_data = TgeScrapper._parse_table_data(table.tbody)
+                table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
+                data = [*table_body_data, *table_summary_data]
+                data_snapshot = pd.DataFrame(data, columns=table_head_data)
+                return data_snapshot
         else:
-            table = tables[0]
-            table_head_data = TgeScrapper._parse_table_metadata(table.thead)
-            table_body_data = TgeScrapper._parse_table_data(table.tbody)
-            table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
-            data = [*table_body_data, *table_summary_data]
-            data_snapshot = pd.DataFrame(data, columns=table_head_data)
-            return data_snapshot
+            for table_id in self.table_ids:
+                tables = html_parser.findAll('table', {'id': table_id})
+                if len(tables) != 1:
+                    raise TableNotFoundError(
+                        message=f'Table with id {table_id} does not exist'
+                    )
+                else:
+                    table = tables[0]
+                    table_head_data = TgeScrapper._parse_table_metadata(table.thead)
+                    table_body_data = TgeScrapper._parse_table_data(table.tbody)
+                    table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
+                    data = [*table_body_data, *table_summary_data]
+                    data_snapshot = pd.DataFrame(data, columns=table_head_data)
+                    return data_snapshot
 
     @retry(
         exceptions=(IncompleteRead, HTTPError, Timeout),

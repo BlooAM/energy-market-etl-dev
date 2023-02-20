@@ -13,7 +13,6 @@ from energy_market_etl.utils.url_utils import UrlProviderFactory
 class TgeExtractor(Extractor):
     _TGE_REQUEST_URL_BASE = 'https://tge.pl'
     _RETENTION_HORIZON_MONTHS = 2
-    _TABLE_IDS = {}
 
     def __init__(
             self,
@@ -26,8 +25,8 @@ class TgeExtractor(Extractor):
         self.end_date = end_date
         self.url_provider_factory = url_provider_factory
 
-        table_id = '' if index_data else 'footable_kontrakty_godzinowe'
-        self.scrapper = TgeScrapper(table_id=table_id) #TODO: dynamic table_id (via constructor?)
+        table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
+        self.scrapper = TgeScrapper(table_ids=table_ids)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
