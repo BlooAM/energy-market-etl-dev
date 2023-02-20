@@ -15,11 +15,19 @@ class TgeExtractor(Extractor):
     _RETENTION_HORIZON_MONTHS = 2
     _TABLE_IDS = {}
 
-    def __init__(self, start_date: dt.datetime, end_date: dt.datetime, url_provider_factory: UrlProviderFactory):
+    def __init__(
+            self,
+            start_date: dt.datetime,
+            end_date: dt.datetime,
+            url_provider_factory: UrlProviderFactory,
+            index_data: bool,
+    ):
         self.start_date = start_date
         self.end_date = end_date
         self.url_provider_factory = url_provider_factory
-        self.scrapper = TgeScrapper(table_id='footable_kontrakty_godzinowe') #TODO: dynamic table_id (via constructor?)
+
+        table_id = '' if index_data else 'footable_kontrakty_godzinowe'
+        self.scrapper = TgeScrapper(table_id=table_id) #TODO: dynamic table_id (via constructor?)
 
     def extract(self) -> Dict[dt.datetime, pd.DataFrame]:
         url_provider: Callable = self.__get_url_provider()
