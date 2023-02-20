@@ -38,6 +38,11 @@ class InvalidTableStructure(Exception):
 class TgeScrapper:
     def __init__(self, table_ids: str) -> None:
         self.table_ids = table_ids
+        if len(self.table_ids) == 1:
+            self.expected_structure = {
+                'expected_no_head_rows': 2,
+
+            }
 
     def scrape(self, url: str) -> pd.DataFrame:
         try:
@@ -56,9 +61,9 @@ class TgeScrapper:
                 )
             else:
                 table = tables[0]
-                table_head_data = TgeScrapper._parse_table_metadata(table.thead)
-                table_body_data = TgeScrapper._parse_table_data(table.tbody)
-                table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
+                table_head_data = self._parse_table_metadata(table.thead)
+                table_body_data = self._parse_table_data(table.tbody)
+                table_summary_data = self._parse_table_data(table.tfoot)
                 data = [*table_body_data, *table_summary_data]
                 data_snapshot = pd.DataFrame(data, columns=table_head_data)
                 return data_snapshot
@@ -88,10 +93,9 @@ class TgeScrapper:
         html_parser = BeautifulSoup(response.text, "html.parser")
         return html_parser
 
-    @staticmethod
-    def _parse_row_data(row: bs4.element.Tag) -> List[Union[str, float, None]]:
+    def _parse_row_data(self, row: bs4.element.Tag) -> List[Union[str, float, None]]:
         row_cells = row.findAll('td')
-        expected_no_cells = 7
+        expected_no_cells = self.expected_structure['expected_no_columns']
         if len(row_cells) != expected_no_cells:
             raise InvalidTableStructure(
                 message=f'Invalid structure - TGE table should consist of {expected_no_cells} columns, '
@@ -101,16 +105,14 @@ class TgeScrapper:
         numeric_row_values = [_row_cell_formatter(row.text) for row in row_cells[1:]]
         return [index_row_value, *numeric_row_values]
 
-    @staticmethod
-    def _parse_table_data(raw_table_content: bs4.element.Tag) -> List[List[Union[str, float, None]]]:
+    def _parse_table_data(self, raw_table_content: bs4.element.Tag) -> List[List[Union[str, float, None]]]:
         raw_rows = raw_table_content.findAll('tr')
-        parsed_rows = [TgeScrapper._parse_row_data(row) for row in raw_rows]
+        parsed_rows = [self._parse_row_data(row) for row in raw_rows]
         return parsed_rows
 
-    @staticmethod
-    def _parse_table_metadata(raw_table_content: bs4.element.Tag) -> List[str]:
+    def _parse_table_metadata(self, raw_table_content: bs4.element.Tag) -> List[str]:
         table_head_rows = raw_table_content.findAll('tr')
-        expected_no_head_rows = 2
+        expected_no_head_rows = self.expected_structure['expected_no_head_rows']
         if len(table_head_rows) != expected_no_head_rows:
             raise InvalidTableStructure(
                 message=f'Invalid structure - TGE table should consist of {expected_no_head_rows} head rows, '
@@ -128,3 +130,31 @@ class TgeScrapper:
 
         parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)]
         return parsed_rows
+
+
+if __name__ == '__main__':
+    index_data = True
+    url = 'https://tge.pl/energia-elektryczna-rdn'
+
+    table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
+    # scrapper = TgeScrapper(table_ids=table_ids)
+    # data = scrapper.scrape()
+
+
+    response = requests.get(url=url)
+    html_parser = BeautifulSoup(response.text, "html.parser")
+
+    table_id = table_ids[0]
+    tables = html_parser.findAll('table', {'id': table_id})
+    if len(tables) != 1:
+        raise TableNotFoundError(
+            message=f'Table with id {table_id} does not exist'
+        )
+    else:
+        table = tables[0]
+        table_head_data = TgeScrapper._parse_table_metadata(table.thead)
+        table_body_data = TgeScrapper._parse_table_data(table.tbody)
+        table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
+        data = [*table_body_data, *table_summary_data]
+        data_snapshot = pd.DataFrame(data, columns=table_head_data)
+        return data_snapshot
