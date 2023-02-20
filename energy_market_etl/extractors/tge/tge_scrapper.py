@@ -41,7 +41,12 @@ class TgeScrapper:
         if len(self.table_ids) == 1:
             self.expected_structure = {
                 'expected_no_head_rows': 2,
-
+                'expected_no_columns': 7,
+            }
+        else:
+            self.expected_structure = {
+                'expected_no_head_rows': 1,
+                'expected_no_columns': 5,
             }
 
     def scrape(self, url: str) -> pd.DataFrame:
@@ -76,12 +81,12 @@ class TgeScrapper:
                     )
                 else:
                     table = tables[0]
-                    table_head_data = TgeScrapper._parse_table_metadata(table.thead)
-                    table_body_data = TgeScrapper._parse_table_data(table.tbody)
-                    table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
-                    data = [*table_body_data, *table_summary_data]
-                    data_snapshot = pd.DataFrame(data, columns=table_head_data)
-                    return data_snapshot
+                    # table_head_data = self._parse_table_metadata(table.thead)
+                    table_body_data = self._parse_table_data(table.tbody)
+                    # table_summary_data = self._parse_table_data(table.tfoot)
+                    data = [*table_body_data]
+                    # data_snapshot = pd.DataFrame(data, columns=table_head_data)
+                    return data
 
     @retry(
         exceptions=(IncompleteRead, HTTPError, Timeout),
@@ -137,24 +142,5 @@ if __name__ == '__main__':
     url = 'https://tge.pl/energia-elektryczna-rdn'
 
     table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
-    # scrapper = TgeScrapper(table_ids=table_ids)
-    # data = scrapper.scrape()
-
-
-    response = requests.get(url=url)
-    html_parser = BeautifulSoup(response.text, "html.parser")
-
-    table_id = table_ids[0]
-    tables = html_parser.findAll('table', {'id': table_id})
-    if len(tables) != 1:
-        raise TableNotFoundError(
-            message=f'Table with id {table_id} does not exist'
-        )
-    else:
-        table = tables[0]
-        table_head_data = TgeScrapper._parse_table_metadata(table.thead)
-        table_body_data = TgeScrapper._parse_table_data(table.tbody)
-        table_summary_data = TgeScrapper._parse_table_data(table.tfoot)
-        data = [*table_body_data, *table_summary_data]
-        data_snapshot = pd.DataFrame(data, columns=table_head_data)
-        return data_snapshot
+    scrapper = TgeScrapper(table_ids=table_ids)
+    data = scrapper.scrape(url=url)
