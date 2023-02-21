@@ -46,7 +46,7 @@ class TgeScrapper:
         else:
             self.expected_structure = {
                 'expected_no_head_rows': 1,
-                'expected_no_columns': 5,
+                'expected_no_columns': 6,
             }
 
     def scrape(self, url: str) -> pd.DataFrame:
@@ -81,12 +81,11 @@ class TgeScrapper:
                     )
                 else:
                     table = tables[0]
-                    # table_head_data = self._parse_table_metadata(table.thead)
+                    table_head_data = self._parse_table_metadata(table.thead)
                     table_body_data = self._parse_table_data(table.tbody)
-                    # table_summary_data = self._parse_table_data(table.tfoot)
                     data = [*table_body_data]
-                    # data_snapshot = pd.DataFrame(data, columns=table_head_data)
-                    return data
+                    data_snapshot = pd.DataFrame(data, columns=table_head_data)
+                    return data_snapshot
 
     @retry(
         exceptions=(IncompleteRead, HTTPError, Timeout),
@@ -130,10 +129,13 @@ class TgeScrapper:
         title_lists = [list(repeat(title.text, n_copies)) for (title, n_copies) in zip(title_tags, title_widths)]
         titles = list(chain(*title_lists))
 
-        subtitles_row = table_head_rows[1]
-        subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
+        if len(table_head_rows) > 1:
+            subtitles_row = table_head_rows[1]
+            subtitles = [subtitle.text for subtitle in subtitles_row.findAll('th')]
+            parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)]
+        else:
+            parsed_rows = titles
 
-        parsed_rows = [f'{title}, {subtitle}' for (title, subtitle) in zip(titles, subtitles)]
         return parsed_rows
 
 
@@ -144,3 +146,14 @@ if __name__ == '__main__':
     table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
     scrapper = TgeScrapper(table_ids=table_ids)
     data = scrapper.scrape(url=url)
+
+
+
+    # table = scrapper.get_html_parser(url=url).findAll('table', {'id': table_ids[0]})[0]
+    # raw_table_content = table.thead
+    # table_head_rows = raw_table_content.findAll('tr')
+    # titles_row = table_head_rows[0]
+    # title_tags = [title_tag for title_tag in titles_row.findAll('th')]
+    # title_widths = [int(title_tag.get('colspan')) if title_tag.get('colspan') else 1 for title_tag in title_tags]
+    # title_lists = [list(repeat(title.text, n_copies)) for (title, n_copies) in zip(title_tags, title_widths)]
+    # titles = list(chain(*title_lists))
