@@ -58,7 +58,6 @@ class TgeScrapper:
 
         if len(self.table_ids) == 1:
             table_id = self.table_ids[0]
-            # TgeScrapper._parse_hourly_data_table(html_parser=html_parser, table_id=table_id)
             tables = html_parser.findAll('table', {'id': table_id})
             if len(tables) != 1:
                 raise TableNotFoundError(

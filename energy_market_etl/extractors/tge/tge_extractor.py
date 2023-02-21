@@ -24,7 +24,6 @@ class TgeExtractor(Extractor):
         self.start_date = start_date
         self.end_date = end_date
         self.url_provider_factory = url_provider_factory
-
         table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
         self.scrapper = TgeScrapper(table_ids=table_ids)
 

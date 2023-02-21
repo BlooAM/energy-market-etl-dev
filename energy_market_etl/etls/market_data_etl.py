@@ -29,12 +29,14 @@ class MarketDataEtl(Etl):
         super().__init__(start_date=start_date, end_date=end_date, report_type=report_type)
         endpoint = MarketDataEtl.ETL_METADATA.get(report_type, '')
         self.url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint=endpoint)
+        self.index_data = True if self.report_type == 'tge_rdn_index_data' else False
 
     def extract(self) -> None:
         extract_layer: Extractor = TgeExtractor(
             start_date=self.start_date,
             end_date=self.end_date,
             url_provider_factory=self.url_provider_factory,
+            index_data=self.index_data
         )
         self.__extracted_data = extract_layer.extract()
 
