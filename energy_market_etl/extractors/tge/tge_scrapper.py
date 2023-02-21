@@ -73,6 +73,7 @@ class TgeScrapper:
                 data_snapshot = pd.DataFrame(data, columns=table_head_data)
                 return data_snapshot
         else:
+            data_snapshots_list = list()
             for table_id in self.table_ids:
                 tables = html_parser.findAll('table', {'id': table_id})
                 if len(tables) != 1:
@@ -84,8 +85,11 @@ class TgeScrapper:
                     table_head_data = self._parse_table_metadata(table.thead)
                     table_body_data = self._parse_table_data(table.tbody)
                     data = [*table_body_data]
-                    data_snapshot = pd.DataFrame(data, columns=table_head_data)
-                    return data_snapshot
+                    data_snapshots_list.append(pd.DataFrame(data, columns=table_head_data))
+
+            data_snapshots = pd.concat(data_snapshots_list)
+            data_snapshots = data_snapshots.dropna(axis=1, how='all')
+            return data_snapshots
 
     @retry(
         exceptions=(IncompleteRead, HTTPError, Timeout),
@@ -146,14 +150,3 @@ if __name__ == '__main__':
     table_ids = ['footable_indeksy_0', 'footable_indeksy_1'] if index_data else ['footable_kontrakty_godzinowe']
     scrapper = TgeScrapper(table_ids=table_ids)
     data = scrapper.scrape(url=url)
-
-
-
-    # table = scrapper.get_html_parser(url=url).findAll('table', {'id': table_ids[0]})[0]
-    # raw_table_content = table.thead
-    # table_head_rows = raw_table_content.findAll('tr')
-    # titles_row = table_head_rows[0]
-    # title_tags = [title_tag for title_tag in titles_row.findAll('th')]
-    # title_widths = [int(title_tag.get('colspan')) if title_tag.get('colspan') else 1 for title_tag in title_tags]
-    # title_lists = [list(repeat(title.text, n_copies)) for (title, n_copies) in zip(title_tags, title_widths)]
-    # titles = list(chain(*title_lists))
