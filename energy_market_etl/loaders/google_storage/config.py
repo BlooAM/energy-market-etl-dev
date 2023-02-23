@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class GoogleCloudStorageConfig:
-    pass
+class GoogleCloudStorageConfig(BaseModel):
+    key_path: str
+    bucket_name: str

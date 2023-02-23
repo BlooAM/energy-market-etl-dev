@@ -133,3 +133,4 @@ dmypy.json
 reports/
 
 credentials.json
+config.yml
