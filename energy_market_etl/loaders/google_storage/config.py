@@ -1,0 +1,2 @@
+class GoogleCloudStorageConfig:
+    pass
