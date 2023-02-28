@@ -23,4 +23,3 @@ class GoogleCloudStorageLoader(Loader):
             blob.upload_from_string(transformed_data.to_csv(), 'text/csv')
             if blob.exists():
                 logging.info("File: %s saved successfully to bucket: %s", self.file_name, self._bucket)
-s
