@@ -1,3 +1,5 @@
+import logging
+
 from energy_market_etl.loaders.loader import Loader
 from energy_market_etl.loaders.google_storage.config import GoogleCloudStorageConfig
 from energy_market_etl.loaders.google_storage.client.google_cloud_storage_client import create_gcs_client
@@ -13,4 +15,4 @@ class GoogleCloudStorageLoader(Loader):
             logging.warning('No data to load. Omitting load phase')
         else:
             blob = self._bucket.blob('test.csv')
-            blob.upload_from_string(df.to_csv(), 'text/csv')
+            blob.upload_from_string(transformed_data.to_csv(), 'text/csv')
