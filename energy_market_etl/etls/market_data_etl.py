@@ -11,6 +11,7 @@ from energy_market_etl.transformers.date_column.date_column_transformer import D
 from energy_market_etl.transformers.stack.stack_transformer import StackTransformer
 from energy_market_etl.transformers.metadata.metadata_transformer import MetadataTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
+from energy_market_etl.loaders.google_storage.google_cloud_storage_loader import GoogleCloudStorageLoader
 from energy_market_etl.etls.etl import Etl
 
 
@@ -51,10 +52,14 @@ class MarketDataEtl(Etl):
             self.__transformed_data = transformer.transform(self.__transformed_data)
 
     def load(self) -> None:
-        load_layer: Loader = CsvLoader(
-            file_name=self.report_name
-        )
-        load_layer.load(self.__transformed_data)
+        load_layer: Iterable[Loader] = [
+            CsvLoader(file_name=self.report_name),
+            GoogleCloudStorageLoader(
+                config=,
+                file_name=self.report_name),
+        ]
+        for loader in load_layer:
+            loader.load(self.__transformed_data)
 
 
 __all__ = class_names(MarketDataEtl)
