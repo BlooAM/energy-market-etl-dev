@@ -8,6 +8,12 @@ import pandas as pd
 from energy_market_etl.config import load_config
 
 
+def read_config():
+    path = Path('config.yml')
+    config = load_config(path)
+    return config
+
+
 class Etl(ABC):
     def __init__(
             self,
@@ -23,7 +29,6 @@ class Etl(ABC):
             self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
         self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
-        self.__config = self.__read_config()
 
     @abstractmethod
     def extract(self) -> None:
@@ -36,8 +41,3 @@ class Etl(ABC):
     @abstractmethod
     def load(self) -> None:
         raise NotImplementedError('`load` method not implemented in ETL object')
-
-    def __read_config(self):
-        path = Path('config.yml')
-        config = load_config(path)
-        return config

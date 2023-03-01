@@ -12,7 +12,7 @@ from energy_market_etl.transformers.stack.stack_transformer import StackTransfor
 from energy_market_etl.transformers.metadata.metadata_transformer import MetadataTransformer
 from energy_market_etl.loaders.csv.csv_loader import CsvLoader
 from energy_market_etl.loaders.google_storage.google_cloud_storage_loader import GoogleCloudStorageLoader
-from energy_market_etl.etls.etl import Etl
+from energy_market_etl.etls.etl import Etl, read_config
 
 
 class MarketDataEtl(Etl):
@@ -29,6 +29,7 @@ class MarketDataEtl(Etl):
     ) -> None:
         super().__init__(start_date=start_date, end_date=end_date, report_type=report_type)
         endpoint = MarketDataEtl.ETL_METADATA.get(report_type, '')
+        self.__config = read_config()
         self.url_provider_factory = UrlProviderFactory(url_type='parametrized', endpoint=endpoint)
         self.index_data = True if report_type == 'tge_rdn_index_data' else False
 
@@ -56,7 +57,7 @@ class MarketDataEtl(Etl):
             CsvLoader(file_name=self.report_name),
             GoogleCloudStorageLoader(
                 file_name=self.report_name,
-                config=self.__config,
+                config=self.__config.google_storage,
             ),
         ]
         for loader in load_layer:

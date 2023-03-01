@@ -1,14 +1,15 @@
+from dataclasses import dataclass
 import pathlib
 from typing import Type, TypeVar
 
 import dacite
-from pydantic import BaseModel
 import yaml
 
 from energy_market_etl.loaders.google_storage.config import GoogleCloudStorageConfig
 
 
-class Config(BaseModel):
+@dataclass
+class Config:
     google_storage: GoogleCloudStorageConfig
 
 
