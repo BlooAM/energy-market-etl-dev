@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import datetime as dt
+from pathlib import Path
 from typing import Dict
 
 import pandas as pd
@@ -32,3 +33,8 @@ class Etl(ABC):
     @abstractmethod
     def load(self) -> None:
         raise NotImplementedError('`load` method not implemented in ETL object')
+
+    def __read_config(self):
+        path = Path('config.yml')
+        config = load_config(path)
+        return config
