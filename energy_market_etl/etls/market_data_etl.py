@@ -55,8 +55,9 @@ class MarketDataEtl(Etl):
         load_layer: Iterable[Loader] = [
             CsvLoader(file_name=self.report_name),
             GoogleCloudStorageLoader(
-                config=,
-                file_name=self.report_name),
+                file_name=self.report_name,
+                config=self.__config,
+            ),
         ]
         for loader in load_layer:
             loader.load(self.__transformed_data)

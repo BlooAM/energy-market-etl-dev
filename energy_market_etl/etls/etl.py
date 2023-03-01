@@ -5,6 +5,8 @@ from typing import Dict
 
 import pandas as pd
 
+from energy_market_etl.config import load_config
+
 
 class Etl(ABC):
     def __init__(
@@ -21,6 +23,7 @@ class Etl(ABC):
             self.report_name = f'{report_type}_{start_date.date()}_{end_date.date()}'
         self.__extracted_data: Dict[dt.datetime, pd.DataFrame] = {}
         self.__transformed_data: pd.DataFrame = pd.DataFrame()
+        self.__config = self.__read_config()
 
     @abstractmethod
     def extract(self) -> None:
